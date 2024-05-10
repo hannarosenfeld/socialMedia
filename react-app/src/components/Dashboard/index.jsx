@@ -36,8 +36,8 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
-      <Button variant="contained" color="primary" onClick={handleAddRoom}>
-        Add Room
+      <Button variant="text" color="primary" onClick={handleAddRoom}>
+      <span class="material-symbols-outlined">add</span>Add Room
       </Button>
     </Container>
   );

@@ -22,9 +22,9 @@ function App() {
 
   return (
     <>
-    {!sessionUser && (
+    {/* {!sessionUser && (
       <LoginPage />
-    )}
+    )} */}
     <Dashboard />
     </>
   )
