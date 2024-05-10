@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import configureStore from "./store/index.js";
 import * as sessionActions from "./store/session.js";
@@ -12,11 +12,12 @@ if (process.env.NODE_ENV !== "production") {
 	window.sessionActions = sessionActions;
 }
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
