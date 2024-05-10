@@ -16,9 +16,6 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h2" component="h2" gutterBottom>
-        Chatroom Dashboard
-      </Typography>
       <div className="grid grid-cols-1 gap-4">
         {chatrooms.map(chatroom => (
           <Card key={chatroom.id}>

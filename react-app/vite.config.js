@@ -9,6 +9,16 @@ export default defineConfig({
   esbuild: {
     jsxInject: `import React from 'react'`,
   },
+  server: {
+    host: true,
+    // port: 5000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': '/src', // Set up an alias for easier imports
@@ -18,5 +28,5 @@ export default defineConfig({
         plugins: [tailwindcss()],
       },
     },
-  },
+    },
 });
