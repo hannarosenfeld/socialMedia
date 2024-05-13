@@ -52,14 +52,14 @@ export default function LoginPage() {
                 >
                     <TextField 
                         id="outlined-basic" 
-                        label="Email" 
+                        label={ email ? '' : 'Email'}
                         variant="outlined" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} 
                     />
                     <TextField 
                         id="outlined-basic" 
-                        label="Password" 
+                        label={ password ? '' : 'Password'}
                         variant="outlined" 
                         type="password"
                         value={password}
