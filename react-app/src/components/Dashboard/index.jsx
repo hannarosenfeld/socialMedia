@@ -6,17 +6,23 @@ import NavBar from '../NavBar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const chatrooms = useSelector((state) => state.rooms)
+  const chatRooms = useSelector((state) => state.room)
+  const [loading, setLoading] = useState(true);
+  let chatRoomsArr;
 
   useEffect(() => {
-    console.log("🇲🇽", chatrooms)
-  }, [chatrooms])
+    try {
+      console.log("🇲🇽", Object.values(chatRooms).map(room => console.log("🍅", room)))
+     chatRoomsArr = Object.values(chatRooms)
+     setLoading(false)
+    } catch(err) {
+      console.log("🇲🇽", err)
+    }
+  }, [chatRooms])
 
   useEffect(() => {
-    dispatch(getAllRoomsThunk());
+    const getRooms = dispatch(getAllRoomsThunk());
   }, [])
-
-
 
   const handleAddRoom = () => {
     return
@@ -27,19 +33,14 @@ const Dashboard = () => {
   return (
     <>
     <NavBar/>
+    {!loading && (
     <Container maxWidth="lg" className='page-wrapper'>
-      <div style={{border: "2px solid blue", height: "23em", width: "20em", float: "right", display: "flex"}}>
-        {chatrooms?.map(chatroom => (
+      <div style={{border: "2px solid blue", height: "23em", width: "20em", float: "right", display: "flex", flexDirection: "column"}}>
+        {Object.values(chatRooms).map(chatroom => (
           <Card key={chatroom.id}>
             <CardContent>
               <Typography variant="h5" component="h3" gutterBottom>
                 {chatroom.name}
-              </Typography>
-              <Typography variant="body1" component="p" gutterBottom>
-                {chatroom.description}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                Created by: {chatroom.creator}
               </Typography>
             </CardContent>
           </Card>
@@ -49,6 +50,7 @@ const Dashboard = () => {
       </Button>     
       </div>
     </Container>
+    )}
     </>
   );
 };
