@@ -6,7 +6,6 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import NavBar from './components/NavBar';
-import { BrowserRouter } from 'react-router-dom'
 
 import './App.css';
 
@@ -20,7 +19,7 @@ function App() {
   }, [sessionUser])
 
   return (
-    <BrowserRouter>
+    <>
     {!sessionUser && (
       <LoginPage />
     )}
@@ -32,7 +31,7 @@ function App() {
       </div>
     )}
     </div>
-    </BrowserRouter>
+    </>
   )
 }
 
