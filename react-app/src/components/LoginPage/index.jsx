@@ -2,16 +2,19 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { login } from '../../store/session';
 
 export default function LoginPage() {
+    const dispatch = useDispatch();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const onSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Add your form submission logic here
+        await dispatch(login(email, password));
     };
-
+    
     return (
         <div style={{
         width: "100%", 
@@ -22,7 +25,7 @@ export default function LoginPage() {
         justifyContent: 'center', // Align content vertically in the center
         textAlign: 'center', // Align text in the center
         margin: "0 auto",}}>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit}>
             <Box
                 sx={{
                     display: 'flex',
