@@ -6,6 +6,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import NavBar from './components/NavBar';
+import { Route, Routes } from 'react-router-dom'; 
 
 import './App.css';
 
@@ -21,16 +22,16 @@ function App() {
   return (
     <>
     {!sessionUser && (
-      <LoginPage />
+      <Routes>
+        <Route excact path="/" element={<LoginPage/>} />
+      </Routes>
     )}
-    <div>
     {sessionUser && (
-      <div>
-        <NavBar />
-        <Dashboard />
-      </div>
+      <Routes>
+        <Route path="/" element={<NavBar />} />
+        <Route path="/" element={<Dashboard />} />
+      </Routes>
     )}
-    </div>
     </>
   )
 }
