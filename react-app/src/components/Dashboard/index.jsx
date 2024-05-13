@@ -6,7 +6,7 @@ import NavBar from '../NavBar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const chatrooms = useSelector(state => state.rooms)
+  const chatrooms = useSelector((state) => state.rooms)
 
   useEffect(() => {
     console.log("🇲🇽", chatrooms)

@@ -13,7 +13,7 @@ def rooms():
     print("🍔")
     rooms = Room.query.all()
     print("🔥", rooms)
-    return jsonify([room.to_dict() for room in rooms])
+    return [room.to_dict() for room in rooms]
 
 @room_routes.route('/<int:id>')
 # @login_required

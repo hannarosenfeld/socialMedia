@@ -14,14 +14,14 @@ export const addRoomThunk = (roomData) => async (dispatch) => {
 }
 
 export const getAllRoomsThunk = () => async (dispatch) => {
-    const res = fetch("/api/rooms")
+    const res = await fetch("/api/rooms");
+    console.log("🥞", res)
     if (res.ok) {
-        const data = await res.json()
-        console.log("🥞", data)
+        const data = await res.json();
         await dispatch(getAllRoomsAction(data))
         return data
     } else {
-        const err = (await res).json()
+        const err = (await res).json
         return err
     }
 }
@@ -29,13 +29,15 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 const initialState = {};
 
 const roomReducer = (state = initialState, action) => {
+    console.log("🥚", action)
+    let newState = {...state}
     switch (action.type) {
         case GET_ALL_ROOMS:
-            console.log("🥚", action)
-            return {
-                ...state,
-                ...action.payload
-            }
+            const rooms = action.rooms
+            rooms.map(room => {
+                newState[room.id] = room
+            })
+            return newState;
         case ADD_ROOM:
             return {
                 ...state,
