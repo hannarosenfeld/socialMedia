@@ -9,7 +9,7 @@ import NavBar from './components/NavBar';
 import { Route, Routes } from 'react-router-dom'; 
 
 import './App.css';
-
+import SignUpPage from './components/SIgnUpPage';
 
 function App() {  
   const dispatch = useDispatch();
@@ -23,12 +23,13 @@ function App() {
     <>
     {!sessionUser && (
       <Routes>
-        <Route excact path="/" element={<LoginPage/>} />
+        <Route exact path="/signup" element={<SignUpPage/>}/>
+        <Route excact path="/" element={<LoginPage/>}/>
       </Routes>
     )}
     {sessionUser && (
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route exact path="/" element={<Dashboard />}/>          
       </Routes>
     )}
     </>

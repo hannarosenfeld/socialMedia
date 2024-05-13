@@ -4,10 +4,11 @@ import TextField from '@mui/material/TextField';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/session';
-import { Link } from 'react-router-dom'; // Import Link instead of NavLink
+import { Link } from '@mui/material';
 
-export default function LoginPage() {
+export default function SignUpPage() {
     const dispatch = useDispatch();
+    const [userName, setUserName] = useState('')
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -52,6 +53,13 @@ export default function LoginPage() {
                 >
                     <TextField 
                         id="outlined-basic" 
+                        label={ userName ? '' : 'Username'}
+                        variant="outlined" 
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)} 
+                    />
+                    <TextField 
+                        id="outlined-basic" 
                         label={ email ? '' : 'Email'}
                         variant="outlined" 
                         value={email}
@@ -69,26 +77,10 @@ export default function LoginPage() {
                         variant="outlined" 
                         type="submit" 
                     >
-                        LOGIN
+                        SIGN UP
                     </Button>
-            <Link 
-                to="/signup" 
-                style={{
-                    marginTop: '1em',
-                    textDecoration: 'none',
-                    color: 'blue',
-                }}
-            >
-                <Button variant="text" color="secondary" style={{marginLeft: "auto", width: "fit-content", display: 'flex', alignItems: 'center'}}>
-                <span>Signup here</span>
-                <span class="material-symbols-outlined">
-                arrow_forward
-                </span>
-                </Button>
-            </Link>
-                </Box> 
+                </Box>                
             </form>
-            {/* Use Link instead of NavLink */}
         </div>
     );
 }

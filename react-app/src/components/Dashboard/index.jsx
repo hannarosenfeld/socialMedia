@@ -17,8 +17,8 @@ const Dashboard = () => {
   return (
     <>
     <NavBar/>
-    <Container maxWidth="md" className='page-wrapper'>
-      <div className="grid grid-cols-1 gap-4">
+    <Container maxWidth="lg" className='page-wrapper'>
+      <div style={{border: "2px solid blue", height: "23em", width: "20em", float: "right", display: "flex"}}>
         {chatrooms.map(chatroom => (
           <Card key={chatroom.id}>
             <CardContent>
@@ -33,11 +33,11 @@ const Dashboard = () => {
               </Typography>
             </CardContent>
           </Card>
-        ))}
+        ))}   
+      <Button variant="text" color="secondary" onClick={handleAddRoom} style={{alignSelf: "flex-end"}}>
+        <span class="material-symbols-outlined">add</span>Add Room
+      </Button>     
       </div>
-      <Button variant="text" color="secondary" onClick={handleAddRoom}>
-      <span class="material-symbols-outlined">add</span>Add Room
-      </Button>
     </Container>
     </>
   );
