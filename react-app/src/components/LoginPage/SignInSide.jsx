@@ -54,6 +54,7 @@ const SignInSide = () => {
         e.preventDefault();
         await dispatch(login(email, password));
     };
+    
   const classes = useStyles();
 
   return (

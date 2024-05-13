@@ -17,7 +17,7 @@ const Dashboard = () => {
   return (
     <>
     <NavBar/>
-    <Container maxWidth="md">
+    <Container maxWidth="md" className='page-wrapper'>
       <div className="grid grid-cols-1 gap-4">
         {chatrooms.map(chatroom => (
           <Card key={chatroom.id}>
