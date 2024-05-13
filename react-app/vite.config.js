@@ -11,13 +11,16 @@ export default defineConfig({
   },
   server: {
     host: true,
-    // port: 5000,
+    port: 3333,
+    strictPort: true,
+    cors: true,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
+      "/api/": {
+      target: "http://127.0.0.1:5000/api/",
+      changeOrigin: true,
+      secure: false,
+      rewrite: (path) => path.replace(/^\/api/, ""),
       },
-    },
   },
   resolve: {
     alias: {
@@ -29,4 +32,4 @@ export default defineConfig({
       },
     },
     },
-});
+}});

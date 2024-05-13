@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUserThunk } from './store/user';
 import { setUser } from './store/session';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import NavBar from './components/NavBar';
