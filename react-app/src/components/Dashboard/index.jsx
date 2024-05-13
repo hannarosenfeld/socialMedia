@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addRoomThunk, getAllRoomsThunk } from '../../store/room'
 import NavBar from '../NavBar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const [chatrooms, setChatrooms] = useState([]);
+  const chatrooms = useSelector(state => state.rooms)
+
+  useEffect(() => {
+    console.log("🇲🇽", chatrooms)
+  }, [chatrooms])
+
+  useEffect(() => {
+    dispatch(getAllRoomsThunk());
+  }, [])
+
+
 
   const handleAddRoom = () => {
     return
@@ -19,7 +29,7 @@ const Dashboard = () => {
     <NavBar/>
     <Container maxWidth="lg" className='page-wrapper'>
       <div style={{border: "2px solid blue", height: "23em", width: "20em", float: "right", display: "flex"}}>
-        {chatrooms.map(chatroom => (
+        {chatrooms?.map(chatroom => (
           <Card key={chatroom.id}>
             <CardContent>
               <Typography variant="h5" component="h3" gutterBottom>

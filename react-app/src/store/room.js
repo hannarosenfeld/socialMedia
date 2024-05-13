@@ -17,6 +17,7 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     const res = fetch("/api/rooms")
     if (res.ok) {
         const data = await res.json()
+        console.log("🥞", data)
         await dispatch(getAllRoomsAction(data))
         return data
     } else {
@@ -30,6 +31,7 @@ const initialState = {};
 const roomReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_ALL_ROOMS:
+            console.log("🥚", action)
             return {
                 ...state,
                 ...action.payload
