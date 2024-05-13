@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { addRoomThunk, getAllRoomsThunk } from '../../store/room'
-
+import NavBar from '../NavBar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -15,6 +15,8 @@ const Dashboard = () => {
   };
 
   return (
+    <>
+    <NavBar/>
     <Container maxWidth="md">
       <div className="grid grid-cols-1 gap-4">
         {chatrooms.map(chatroom => (
@@ -37,6 +39,7 @@ const Dashboard = () => {
       <span class="material-symbols-outlined">add</span>Add Room
       </Button>
     </Container>
+    </>
   );
 };
 

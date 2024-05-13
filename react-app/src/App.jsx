@@ -28,7 +28,6 @@ function App() {
     )}
     {sessionUser && (
       <Routes>
-        <Route path="/" element={<NavBar />} />
         <Route path="/" element={<Dashboard />} />
       </Routes>
     )}
