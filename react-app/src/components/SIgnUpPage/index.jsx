@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { login } from '../../store/session';
+import { login, signUp } from '../../store/session';
 import { Link } from '@mui/material';
 
 export default function SignUpPage() {
@@ -14,7 +14,7 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await dispatch(login(email, password));
+        await dispatch(signUp(userName, email, password));
     };
     
     return (
