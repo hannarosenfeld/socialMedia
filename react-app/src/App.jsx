@@ -15,20 +15,22 @@ function App() {
   const sessionUser = useSelector((state) => state.session.user);
 
   useEffect(() => {
-    const x = dispatch(getUserThunk(1))
-  }, [])
-
-  useEffect(() => {
-    // if (sessionUser) console.log("💖", sessionUser)
+    if (sessionUser) console.log("💖", sessionUser)
   }, [sessionUser])
 
   return (
     <>
-    {/* {!sessionUser && (
+    {!sessionUser && (
       <LoginPage />
-    )} */}
-    <NavBar />
-    <Dashboard />
+    )}
+    <div>
+    {sessionUser && (
+      <div>
+        <NavBar />
+        <Dashboard />
+      </div>
+    )}
+    </div>
     </>
   )
 }
