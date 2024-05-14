@@ -3,6 +3,9 @@ import { Container, Typography, Card, CardContent, Button, Modal, Box, TextField
 import { useDispatch, useSelector } from 'react-redux';
 import { addRoomThunk, getAllRoomsThunk } from '../../store/room'
 import NavBar from '../NavBar';
+import { Link } from "react-router-dom";
+
+
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -59,9 +62,10 @@ const Dashboard = () => {
       <NavBar />
       {!loading && (
         <Container maxWidth="lg" className='page-wrapper'>
-          <div style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
+          <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
             {Object.values(chatRooms).map(chatroom => (
-              <Card key={chatroom.id} >
+              <Link key={chatroom.id} to={`/rooms/${chatroom.name.split(' ').join('-').toLowerCase()}}`}>
+              <Card className="room-card" style={{width: "25em"}}>
                 <CardContent style={{ display: "flex", gap: "1em" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>
                     diversity_3
@@ -76,6 +80,7 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             ))}
             <Button variant="text" color="secondary" onClick={handleAddRoom} style={{ alignSelf: "flex-end", marginTop: "0.5em" }}>
               <span className="material-symbols-outlined">add</span>Add Room
