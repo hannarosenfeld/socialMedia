@@ -10,6 +10,8 @@ import { Route, Routes } from 'react-router-dom';
 import { authenticate } from "./store/session";
 import './App.css';
 import SignUpPage from './components/SIgnUpPage';
+import Room from './components/Room';
+
 
 function App() {  
   const dispatch = useDispatch();
@@ -40,7 +42,9 @@ function App() {
         )}
         {sessionUser && (
           <Routes>
-            <Route exact path="/" element={<Dashboard />}/>          
+            <Route exact path="/" element={<Dashboard />}/>    
+            <Route path="/rooms/:roomId" element={<Room />}/>          
+
           </Routes>
         )}
       </>
