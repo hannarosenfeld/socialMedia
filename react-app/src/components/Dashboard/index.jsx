@@ -52,7 +52,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}   
-      <Button variant="text" color="secondary" onClick={handleAddRoom} style={{alignSelf: "flex-end"}}>
+      <Button variant="text" color="secondary" onClick={handleAddRoom} style={{alignSelf: "flex-end", marginTop: "0.5em"}}>
         <span class="material-symbols-outlined">add</span>Add Room
       </Button>     
       </div>
