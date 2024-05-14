@@ -8,7 +8,7 @@ def seed_rooms():
 
     # Create a room and associate users with it
     r1 = Room(
-        name="Bad Vibes Only", creator=user1, users=[user1, user2]
+        name="Bad Vibes Only", creator=user1, users=[user1, user2], description="Just cringe."
     )
 
     db.session.add(r1)

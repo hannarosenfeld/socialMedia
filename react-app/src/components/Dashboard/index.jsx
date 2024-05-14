@@ -12,11 +12,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     try {
-      console.log("🇲🇽", Object.values(chatRooms).map(room => console.log("🍅", room)))
      chatRoomsArr = Object.values(chatRooms)
      setLoading(false)
     } catch(err) {
-      console.log("🇲🇽", err)
+      console.log("🚨", err)
     }
   }, [chatRooms])
 
@@ -35,13 +34,21 @@ const Dashboard = () => {
     <NavBar/>
     {!loading && (
     <Container maxWidth="lg" className='page-wrapper'>
-      <div style={{border: "2px solid blue", height: "23em", width: "20em", float: "right", display: "flex", flexDirection: "column"}}>
+      <div style={{height: "23em", width: "20em", float: "right", display: "flex", flexDirection: "column", padding: "1em"}}>
         {Object.values(chatRooms).map(chatroom => (
           <Card key={chatroom.id}>
-            <CardContent>
-              <Typography variant="h5" component="h3" gutterBottom>
-                {chatroom.name}
-              </Typography>
+            <CardContent style={{display: "flex", gap: "1em" }}>
+            <span class="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
+                diversity_3
+              </span>
+            <div style={{display: "flex", width: "fit-content", flexDirection: "column"}}>
+                <Typography component="h5">
+                  {chatroom.name}
+                </Typography>
+                <Typography component="subtitle" style={{fontSize: "0.8em"}}>
+                  {chatroom.description}
+                </Typography>
+              </div>
             </CardContent>
           </Card>
         ))}   

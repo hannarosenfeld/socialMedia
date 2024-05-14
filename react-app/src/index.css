@@ -9,10 +9,16 @@
   font-family: 'Roboto', sans-serif;
 }
 
+.nav-bar {
+  background-color: rgb(189, 119, 171);
+}
+
 .page-wrapper {
-    border: 2px solid red;
     height: 90vh;
 }
+
+
+
 
 /*
 :root {
