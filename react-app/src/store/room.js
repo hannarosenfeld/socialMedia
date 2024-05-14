@@ -11,11 +11,26 @@ const getAllRoomsAction = (rooms) => ({
 // })
 
 export const addRoomThunk = (roomData) => async (dispatch) => {
+    console.log("💄", roomData)
+    const res = await fetch("/api/rooms/", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(roomData)
+    });
+    console.log("🥞", res)
+    if (res.ok) {
+        const data = await res.json();
+        await dispatch(getAllRoomsAction(data))
+        return data
+    } else {
+        const err = (await res).json
+        return err
+    }
 }
-
 export const getAllRoomsThunk = () => async (dispatch) => {
     const res = await fetch("/api/rooms");
-    console.log("🥞", res)
     if (res.ok) {
         const data = await res.json();
         await dispatch(getAllRoomsAction(data))

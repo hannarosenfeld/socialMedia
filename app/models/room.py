@@ -19,6 +19,6 @@ class Room(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'creator': self.room_creator.to_dict(),
+            # 'creator': self.room_creator.to_dict(),
             'description': self.description
         }

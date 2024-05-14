@@ -25,11 +25,9 @@ export const getUsersThunk = () => async (dispatch) => {
 }
 
 export const getUserThunk = (userId) => async (dispatch) => {
-    // 🚨 How can I always fetch from port 5000 in development??
     const res = await fetch(`/api/users/${userId}`); 
     if (res.ok) {
         const data = await res.json();
-        console.log("🏛️", data); // Log the data after it's resolved
         dispatch(getUserAction(data));
         return data;
     } else {

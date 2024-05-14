@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, Button } from '@mui/material';
+import { Container, Typography, Card, CardContent, Button, Modal, Box, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { addRoomThunk, getAllRoomsThunk } from '../../store/room'
 import NavBar from '../NavBar';
@@ -8,56 +8,130 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const chatRooms = useSelector((state) => state.room)
   const [loading, setLoading] = useState(true);
-  let chatRoomsArr;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [roomData, setRoomData] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    try {
-     chatRoomsArr = Object.values(chatRooms)
-     setLoading(false)
-    } catch(err) {
-      console.log("🚨", err)
-    }
+    setLoading(false);
   }, [chatRooms])
 
   useEffect(() => {
-    const getRooms = dispatch(getAllRoomsThunk());
-  }, [])
+    dispatch(getAllRoomsThunk());
+  }, [dispatch])
 
   const handleAddRoom = () => {
-    return
-    // Dispatch the addRoomThunk action
-   // dispatch(addRoomThunk(/* pass any necessary parameters */));
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setRoomData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await dispatch(addRoomThunk(roomData))
+      .then(
+        await dispatch(getAllRoomsThunk())
+      ).then(
+        setIsModalOpen(false).then(
+          setLoading(false)
+        ).then(
+          setRoomData({ name: '', description: '' })
+        )
+      )
+    } catch(error) {
+      console.log("🚨",error)
+    }
   };
 
   return (
     <>
-    <NavBar/>
-    {!loading && (
-    <Container maxWidth="lg" className='page-wrapper'>
-      <div style={{height: "23em", width: "20em", float: "right", display: "flex", flexDirection: "column", padding: "1em"}}>
-        {Object.values(chatRooms).map(chatroom => (
-          <Card key={chatroom.id}>
-            <CardContent style={{display: "flex", gap: "1em" }}>
-            <span class="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
-                diversity_3
-              </span>
-            <div style={{display: "flex", width: "fit-content", flexDirection: "column"}}>
-                <Typography component="h5">
-                  {chatroom.name}
-                </Typography>
-                <Typography component="subtitle" style={{fontSize: "0.8em"}}>
-                  {chatroom.description}
-                </Typography>
-              </div>
-            </CardContent>
-          </Card>
-        ))}   
-      <Button variant="text" color="secondary" onClick={handleAddRoom} style={{alignSelf: "flex-end", marginTop: "0.5em"}}>
-        <span class="material-symbols-outlined">add</span>Add Room
-      </Button>     
-      </div>
-    </Container>
-    )}
+      <NavBar />
+      {!loading && (
+        <Container maxWidth="lg" className='page-wrapper'>
+          <div style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
+            {Object.values(chatRooms).map(chatroom => (
+              <Card key={chatroom.id} >
+                <CardContent style={{ display: "flex", gap: "1em" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>
+                    diversity_3
+                  </span>
+                  <div style={{ display: "flex", width: "fit-content", flexDirection: "column" }}>
+                    <Typography component="h5">
+                      {chatroom.name}
+                    </Typography>
+                    <Typography component="subtitle" style={{ fontSize: "0.8em" }}>
+                      {chatroom.description}
+                    </Typography>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <Button variant="text" color="secondary" onClick={handleAddRoom} style={{ alignSelf: "flex-end", marginTop: "0.5em" }}>
+              <span className="material-symbols-outlined">add</span>Add Room
+            </Button>
+          </div>
+        </Container>
+      )}
+      <Modal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="add-room-modal"
+        aria-describedby="modal-for-adding-a-new-room"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+            Add Room
+          </Typography>
+          <TextField
+            fullWidth
+            label="Name"
+            variant="outlined"
+            name="name"
+            value={roomData.name}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            variant="outlined"
+            name="description"
+            value={roomData.description}
+            onChange={handleChange}
+            multiline
+            rows={4}
+            sx={{ mb: 2 }}
+          />
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Add
+          </Button>
+          <Button onClick={handleCloseModal} variant="contained" color="secondary" sx={{ ml: 2 }}>
+            Cancel
+          </Button>
+        </Box>
+      </Modal>
     </>
   );
 };
