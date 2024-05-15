@@ -8,11 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-  },
   chatContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -54,7 +49,8 @@ export default function Room() {
   const classes = useStyles();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [users, setUsers] = useState(['User1', 'User2', 'User3']); // Example user list
+  const usersObj = useSelector(state => state.room.currentRoom.users)
+  const users = Object.values(usersObj)
   const sessionUser = useSelector((state) => state.session.user);
 
   console.log("🍒", sessionUser.id, roomName)
@@ -99,7 +95,7 @@ export default function Room() {
           <div className={classes.usersSection}>
             <Typography variant="h6">Users</Typography>
             <List>
-              {users.map((user, index) => (
+              {users?.map((user, index) => (
                 <ListItem key={index}>
                   <ListItemText primary={user} />
                 </ListItem>

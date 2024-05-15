@@ -11,7 +11,6 @@ const removeUser = () => ({
 	type: REMOVE_USER,
 });
 
-
 export const authenticate = () => async (dispatch) => {
 	const response = await fetch("/api/auth/", {
 		headers: {
@@ -37,7 +36,7 @@ export const login = (email, password) => async (dispatch) => {
 		body: JSON.stringify({
 			email,
 			password,
-		})
+		}),
 	});
 	
 	if (response.ok) {

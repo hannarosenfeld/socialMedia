@@ -1,11 +1,9 @@
-from flask import Blueprint, jsonify, session, request
+from flask import Blueprint, jsonify, request
 from app.models import User, db
-from app.forms import LoginForm
-from app.forms import SignUpForm
-from flask_login import current_user, login_user, logout_user, login_required
+from app.forms import LoginForm, SignUpForm  # Combine imports
+from flask_login import current_user, login_user, logout_user
 
 auth_routes = Blueprint('auth', __name__)
-
 
 def validation_errors_to_error_messages(validation_errors):
     """
@@ -17,7 +15,6 @@ def validation_errors_to_error_messages(validation_errors):
             errorMessages.append(f'{field} : {error}')
     return errorMessages
 
-
 @auth_routes.route('/')
 def authenticate():
     """
@@ -27,23 +24,18 @@ def authenticate():
         return current_user.to_dict()
     return {'errors': ['Unauthorized']}
 
-
 @auth_routes.route('/login', methods=['POST'])
 def login():
     """
     Logs a user in
     """
     form = LoginForm()
-    # Get the csrf_token from the request cookie and put it into the
-    # form manually to validate_on_submit can be used
     form['csrf_token'].data = request.cookies['csrf_token']
     if form.validate_on_submit():
-        # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
         return user.to_dict()
     return {'errors': validation_errors_to_error_messages(form.errors)}, 401
-
 
 @auth_routes.route('/logout')
 def logout():
@@ -53,9 +45,7 @@ def logout():
     logout_user()
     return {'message': 'User logged out'}
 
-
 @auth_routes.route('/signup', methods=['POST'])
-@login_required
 def sign_up():
     """
     Creates a new user and logs them in
@@ -73,7 +63,6 @@ def sign_up():
         login_user(user)
         return user.to_dict()
     return {'errors': validation_errors_to_error_messages(form.errors)}, 401
-
 
 @auth_routes.route('/unauthorized')
 def unauthorized():

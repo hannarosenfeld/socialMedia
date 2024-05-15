@@ -39,7 +39,6 @@ def create_room():
             description=form.data['description'],
             room_creator=current_user
         )
-        print("💖 new room: ", form)
         db.session.add(room)
         db.session.commit()
         return room.to_dict()
@@ -57,15 +56,22 @@ def enter_room_by_name(name):
     user_id = data['user_id']
     
     room = Room.query.filter(func.lower(Room.name) == room_name).first()
+
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
+    
     user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
 
-    room.users.append(user)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
-    # Serialize user object to dictionary
-    user_data = {
-        'id': user.id,
-        'username': user.username,
-        # Add more fields if necessary
-    }
+    return jsonify({
+        'user': user.to_dict(),
+        'room': room.to_dict()
+    })
 
-    return jsonify({'user': user_data})

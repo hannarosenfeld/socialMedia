@@ -13,7 +13,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(40), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     hashed_password = db.Column(db.String(255), nullable=False)
-    rooms = db.relationship('Room', secondary=room_users, back_populates='users', cascade='all, delete', lazy='dynamic')
     created_rooms = db.relationship('Room', backref='creator', lazy=True)
 
     @property
