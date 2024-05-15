@@ -9,18 +9,16 @@ import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const chatRooms = useSelector((state) => state.room)
+  const chatRoomsObj = useSelector((state) => state.room.allRooms);
+  const chatRooms = Object.values(chatRoomsObj);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomData, setRoomData] = useState({ name: '', description: '' });
 
   useEffect(() => {
+    console.log("⚾️", chatRooms)
     setLoading(false);
   }, [chatRooms])
-
-  useEffect(() => {
-    dispatch(getAllRoomsThunk());
-  }, [dispatch])
 
   const handleAddRoom = () => {
     setIsModalOpen(true);
@@ -64,7 +62,7 @@ const Dashboard = () => {
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
           {Object.values(chatRooms).map(chatroom => (
-    <Link key={chatroom.id} to={`/rooms/${chatroom?.name ? chatroom.name.split(' ').join('-').toLowerCase() : ''}`}>
+    <Link key={chatroom.roomInfo.id} to={`/rooms/${chatroom?.roomInfo.name ? chatroom.roomInfo.name.split(' ').join('-').toLowerCase() : ''}`}>
         <Card className="room-card" style={{width: "25em"}}>
             <CardContent style={{display: "flex", gap: "1em"}}>
                 <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
@@ -72,10 +70,10 @@ const Dashboard = () => {
                 </span>
                 <div style={{display: "flex", width: "fit-content", flexDirection: "column"}}>
                     <Typography component="h5">
-                        {chatroom.name}
+                        {chatroom.roomInfo.name}
                     </Typography>
                     <Typography component="subtitle" style={{fontSize: "0.8em"}}>
-                        {chatroom.description}
+                        {chatroom.roomInfo.description}
                     </Typography>
                 </div>
             </CardContent>

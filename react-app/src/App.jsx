@@ -11,12 +11,17 @@ import { authenticate } from "./store/session";
 import './App.css';
 import SignUpPage from './components/SIgnUpPage';
 import Room from './components/Room';
+import { getAllRoomsThunk } from './store/room'
 
 
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    dispatch(getAllRoomsThunk());
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(authenticate())
