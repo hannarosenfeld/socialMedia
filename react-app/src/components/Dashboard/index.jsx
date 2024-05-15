@@ -64,7 +64,7 @@ const Dashboard = () => {
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
             {Object.values(chatRooms).map(chatroom => (
-              <Link key={chatroom.id} to={`/rooms/${chatroom.name.split(' ').join('-').toLowerCase()}}`}>
+              <Link key={chatroom.id} to={`/rooms/${chatroom.name.split(' ').join('-').toLowerCase()}`}>
               <Card className="room-card" style={{width: "25em"}}>
                 <CardContent style={{ display: "flex", gap: "1em" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>

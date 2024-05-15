@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
-from app.models import Room, db
+from app.models import Room, User, db
 from app.forms import RoomForm
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 room_routes = Blueprint('rooms', __name__)
 
@@ -43,3 +44,28 @@ def create_room():
         db.session.commit()
         return room.to_dict()
     return {'errors': form.errors}, 401
+
+
+@room_routes.route('/<string:name>', methods=['PUT'])
+# @login_required
+def enter_room_by_name(name):
+    """
+    Enter room by name
+    """
+    data = request.json
+    room_name = data['room_name'].lower()
+    user_id = data['user_id']
+    
+    room = Room.query.filter(func.lower(Room.name) == room_name).first()
+    user = User.query.get(user_id)
+
+    room.users.append(user)
+
+    # Serialize user object to dictionary
+    user_data = {
+        'id': user.id,
+        'username': user.username,
+        # Add more fields if necessary
+    }
+
+    return jsonify({'user': user_data})

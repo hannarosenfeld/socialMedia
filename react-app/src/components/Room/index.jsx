@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import 'tailwindcss/tailwind.css';
+import { enterRoomThunk } from '../../store/room';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     flex: 1,
-    height: '91vh',
+    height: '90vh',
     width: '100%',
   },
   messagesSection: {
@@ -46,10 +49,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Room() {
+  const dispatch = useDispatch();
+  const {roomName} = useParams();
   const classes = useStyles();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState(['User1', 'User2', 'User3']); // Example user list
+  const sessionUser = useSelector((state) => state.session.user);
+
+  console.log("🍒", sessionUser.id, roomName)
+
+  useEffect(() => {
+    dispatch(enterRoomThunk(sessionUser.id, roomName))
+  }, [])
 
   const handleSendMessage = () => {
     if (input.trim()) {

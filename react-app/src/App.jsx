@@ -19,10 +19,6 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (sessionUser) console.log("💖", sessionUser)
-  }, [sessionUser])
-
-  useEffect(() => {
     dispatch(authenticate())
       .then(() => {
         setIsLoaded(true);
@@ -43,7 +39,7 @@ function App() {
         {sessionUser && (
           <Routes>
             <Route exact path="/" element={<Dashboard />}/>    
-            <Route path="/rooms/:roomId" element={<Room />}/>          
+            <Route path="/rooms/:roomName" element={<Room />}/>          
 
           </Routes>
         )}
