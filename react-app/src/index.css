@@ -9,6 +9,11 @@
   font-family: 'Roboto', sans-serif;
 }
 
+body {
+  max-height: 100vh;
+  overflow: hidden;
+}
+
 .nav-bar {
   background-color: rgb(54, 6, 42);
 }

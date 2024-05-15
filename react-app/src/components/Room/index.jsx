@@ -9,17 +9,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
-    margin: 0,
-    padding: 0,
   },
   chatContainer: {
     display: 'flex',
     flexDirection: 'row',
     flex: 1,
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    height: '90vh',
+    height: '91vh',
     width: '100%',
   },
   messagesSection: {
@@ -29,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   messageList: {
     flex: 1,
-    overflowY: 'auto',
+    overflowY: 'hidden', // Disable scrolling for message list
     padding: theme.spacing(2),
   },
   messageInputContainer: {
@@ -55,9 +50,6 @@ export default function Room() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState(['User1', 'User2', 'User3']); // Example user list
-
-    
-
 
   const handleSendMessage = () => {
     if (input.trim()) {
