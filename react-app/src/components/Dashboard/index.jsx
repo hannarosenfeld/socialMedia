@@ -63,25 +63,26 @@ const Dashboard = () => {
       {!loading && (
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
-            {Object.values(chatRooms).map(chatroom => (
-              <Link key={chatroom.id} to={`/rooms/${chatroom?.name.split(' ').join('-').toLowerCase()}`}>
-              <Card className="room-card" style={{width: "25em"}}>
-                <CardContent style={{ display: "flex", gap: "1em" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>
+          {Object.values(chatRooms).map(chatroom => (
+    <Link key={chatroom.id} to={`/rooms/${chatroom?.name ? chatroom.name.split(' ').join('-').toLowerCase() : ''}`}>
+        <Card className="room-card" style={{width: "25em"}}>
+            <CardContent style={{display: "flex", gap: "1em"}}>
+                <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
                     diversity_3
-                  </span>
-                  <div style={{ display: "flex", width: "fit-content", flexDirection: "column" }}>
+                </span>
+                <div style={{display: "flex", width: "fit-content", flexDirection: "column"}}>
                     <Typography component="h5">
-                      {chatroom.name}
+                        {chatroom.name}
                     </Typography>
-                    <Typography component="subtitle" style={{ fontSize: "0.8em" }}>
-                      {chatroom.description}
+                    <Typography component="subtitle" style={{fontSize: "0.8em"}}>
+                        {chatroom.description}
                     </Typography>
-                  </div>
-                </CardContent>
-              </Card>
-              </Link>
-            ))}
+                </div>
+            </CardContent>
+        </Card>
+    </Link>
+))}
+
             <Button variant="text" color="secondary" onClick={handleAddRoom} style={{ alignSelf: "flex-end", marginTop: "0.5em" }}>
               <span className="material-symbols-outlined">add</span>Add Room
             </Button>

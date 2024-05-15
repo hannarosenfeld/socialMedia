@@ -43,21 +43,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 export default function Room() {
   const dispatch = useDispatch();
-  const {roomName} = useParams();
+  const { roomName } = useParams();
   const classes = useStyles();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const usersObj = useSelector(state => state.room.currentRoom.users)
-  const users = Object.values(usersObj)
+  const currentRoom = useSelector(state => state.room.currentRoom);
+  const users = currentRoom ? Object.values(currentRoom.users) : [];
   const sessionUser = useSelector((state) => state.session.user);
-
-  console.log("🍒", sessionUser.id, roomName)
 
   useEffect(() => {
     dispatch(enterRoomThunk(sessionUser.id, roomName))
-  }, [])
+  }, []);
 
   const handleSendMessage = () => {
     if (input.trim()) {
@@ -95,7 +94,7 @@ export default function Room() {
           <div className={classes.usersSection}>
             <Typography variant="h6">Users</Typography>
             <List>
-              {users?.map((user, index) => (
+              {users.map((user, index) => (
                 <ListItem key={index}>
                   <ListItemText primary={user} />
                 </ListItem>
@@ -107,3 +106,4 @@ export default function Room() {
     </>
   );
 }
+
