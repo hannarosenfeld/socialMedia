@@ -5,6 +5,8 @@ import configureStore from "./store/index.js";
 import * as sessionActions from "./store/session.js";
 import App from './App.jsx';
 import './index.css';
+import theme from './theme';
+import { ThemeProvider } from '@mui/material/styles';
 
 const store = configureStore;
 
@@ -19,7 +21,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
+      <ThemeProvider theme={theme}>
         <App />
+      </ThemeProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>
