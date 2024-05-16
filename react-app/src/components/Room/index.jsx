@@ -58,7 +58,7 @@ export default function Room() {
   const currentRoom = useSelector(state => state.room.currentRoom);
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
-  const users = currentRoom.users;
+  const users = currentRoom?.users;
 
 
   useEffect(() => {
@@ -69,8 +69,7 @@ export default function Room() {
       .catch((err) => console.log("🚨", err))
 
         return () => {
-          console.log("⛳️", currentRoom)
-          dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.id));
+          dispatch(leaveRoomAction(currentRoom?.room?.id, sessionUser.id));
         };
   }, []);
 

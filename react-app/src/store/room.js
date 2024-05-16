@@ -85,7 +85,12 @@ const roomReducer = (state = initialState, action) => {
     switch (action.type) {
         case ENTER_ROOM:
             room = action.payload.room;
-            let user = action.payload.user;
+            const user = action.payload.user.username; // Get the username
+            const currentUsers = state.currentRoom.users || []; // Ensure users is an array
+            if (currentUsers.includes(user)) {
+                // User is already in the room, return state without modifications
+                return state;
+            }
             return {
                 ...state,
                 allRooms: {
@@ -98,29 +103,30 @@ const roomReducer = (state = initialState, action) => {
                 currentRoom: {
                     ...state.currentRoom,
                     room: action.payload.room,
-                    users: [...state.currentRoom.users, user.username]
+                    users: [...currentUsers, user] // Add the username
                 }
-            };
-            case LEAVE_ROOM:
-                console.log("🌰", action)
-                let roomId = action.roomId;
-                let userId = action.userId;
-                room = state.allRooms[roomId];
-                if (room) {
-                    console.log("⚾️", room.activeUsers)
-                    const updatedUsers = room.activeUsers - 1;
-                    return {
-                        ...state,
-                        allRooms: {
-                            ...state.allRooms,
-                            [roomId]: {
-                                ...room,
-                                activeUsers: updatedUsers
-                            }
+            };        
+        case LEAVE_ROOM:
+            console.log("🌰", action)
+            let roomId = action.roomId;
+            let userId = action.userId;
+            room = state.allRooms[roomId];
+            if (room) {
+                console.log("⚾️", room.activeUsers)
+                const updatedUsers = room.activeUsers - 1;
+                return {
+                    ...state,
+                    allRooms: {
+                        ...state.allRooms,
+                        [roomId]: {
+                            ...room,
+                            activeUsers: updatedUsers
                         }
-                    };
-                }
-                return state;            
+                    },
+                    currentRoom : {}
+                };
+            }
+            return state;            
         case GET_ALL_ROOMS:
             const allRooms = {};
             action.rooms.forEach(room => {
