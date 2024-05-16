@@ -3,9 +3,10 @@ import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import 'tailwindcss/tailwind.css';
-import { enterRoomThunk, leaveRoomAction } from '../../store/room'; // Assuming you have a leaveRoomAction action
+import { enterRoomThunk, leaveRoomAction } from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import io from 'socket.io-client';
 
 const useStyles = makeStyles((theme) => ({
   chatContainer: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
   messageList: {
     flex: 1,
-    overflowY: 'hidden', // Disable scrolling for message list
+    overflowY: 'auto',
     padding: theme.spacing(2),
   },
   messageInputContainer: {
@@ -59,23 +60,38 @@ export default function Room() {
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
   const users = currentRoom?.users;
-
+  const socket = io('http://localhost:5000');
 
   useEffect(() => {
-      const entrance = dispatch(enterRoomThunk(sessionUser.id, roomName))
+    socket.on('connect', () => {
+      console.log('Connected to websocket server');
+      socket.emit('join_room', { room: roomName });
+    });
 
-      Promise.all([entrance])
+    socket.on('receive_message', (message) => {
+      setMessages(prevMessages => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [roomName]);
+
+  useEffect(() => {
+    const entrance = dispatch(enterRoomThunk(sessionUser.id, roomName));
+
+    Promise.all([entrance])
       .then(() => setIsLoading(false))
-      .catch((err) => console.log("🚨", err))
+      .catch((err) => console.log("🚨", err));
 
-        return () => {
-          dispatch(leaveRoomAction(currentRoom?.room?.id, sessionUser.id));
-        };
+    return () => {
+      dispatch(leaveRoomAction(currentRoom?.room?.id, sessionUser.id));
+    };
   }, []);
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      setMessages([...messages, input]);
+      socket.emit('send_message', { roomName, message: input, userId: sessionUser.id, roomId: currentRoom?.room?.id });
       setInput('');
     }
   };

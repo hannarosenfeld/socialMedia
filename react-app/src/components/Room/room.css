@@ -1,0 +1,46 @@
+.chat-container {
+    display: flex;
+    flexDirection: row;
+    flex: 1;
+    height: 90vh;
+    width: 100%;
+  }
+  
+  .messages-section {
+    flex: 3;
+    display: flex;
+    flexDirection: column;
+  }
+  
+  .message-list {
+    flex: 1;
+    overflow-y: hidden; /* Disable scrolling for message list */
+    padding: 16px; /* Using theme.spacing alternative */
+  }
+  
+  .message-input-container {
+    display: flex;
+    padding: 16px; /* Using theme.spacing alternative */
+    border-top: 1px solid #ccc;
+  }
+  
+  .message-input {
+    flex: 1;
+    margin-right: 16px; /* Using theme.spacing alternative */
+  }
+  
+  .users-section {
+    flex: 1;
+    border-left: 1px solid #ccc;
+    display: flex;
+    flexDirection: column;
+    padding: 16px; /* Using theme.spacing alternative */
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
