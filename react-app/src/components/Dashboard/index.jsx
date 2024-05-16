@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [roomData, setRoomData] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    console.log("⚾️", chatRooms)
     setLoading(false);
   }, [chatRooms])
 
@@ -68,14 +67,20 @@ const Dashboard = () => {
                 <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
                     diversity_3
                 </span>
-                <div style={{display: "flex", width: "fit-content", flexDirection: "column"}}>
+                <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
+                <div style={{display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center"}}>
                     <Typography component="h5">
                         {chatroom.roomInfo.name}
                     </Typography>
-                    <Typography component="subtitle" style={{fontSize: "0.8em"}}>
+                    <Typography style={{fontSize: "0.8em"}}>
                         {chatroom.roomInfo.description}
                     </Typography>
                 </div>
+                <div style={{display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em"}}>
+                  <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.activeUsers}</span>
+                  <span style={{fontSize: "12px", width: "3em"}}>people chatting</span>
+                </div>
+                    </div>
             </CardContent>
         </Card>
     </Link>

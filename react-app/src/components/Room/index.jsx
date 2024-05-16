@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import NavBar from "../NavBar";
-import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import 'tailwindcss/tailwind.css';
-import { enterRoomThunk } from '../../store/room';
+import { enterRoomThunk, leaveRoomAction } from '../../store/room'; // Assuming you have a leaveRoomAction action
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
@@ -41,8 +41,13 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     padding: theme.spacing(2),
   },
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
 }));
-
 
 export default function Room() {
   const dispatch = useDispatch();
@@ -51,11 +56,22 @@ export default function Room() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const currentRoom = useSelector(state => state.room.currentRoom);
-  const users = currentRoom ? Object.values(currentRoom.users) : [];
   const sessionUser = useSelector((state) => state.session.user);
+  const [loading, setIsLoading] = useState(true);
+  const users = currentRoom.users;
+
 
   useEffect(() => {
-    dispatch(enterRoomThunk(sessionUser.id, roomName))
+      const entrance = dispatch(enterRoomThunk(sessionUser.id, roomName))
+
+      Promise.all([entrance])
+      .then(() => setIsLoading(false))
+      .catch((err) => console.log("🚨", err))
+
+        return () => {
+          console.log("⛳️", currentRoom)
+          dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.id));
+        };
   }, []);
 
   const handleSendMessage = () => {
@@ -64,6 +80,14 @@ export default function Room() {
       setInput('');
     }
   };
+
+  if (loading || !sessionUser || !currentRoom) {
+    return (
+      <div className={classes.loadingContainer}>
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -106,4 +130,3 @@ export default function Room() {
     </>
   );
 }
-
