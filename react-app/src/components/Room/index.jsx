@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -60,22 +60,29 @@ export default function Room() {
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
   const users = currentRoom?.users;
-  const socket = io('http://localhost:5000');
 
+  const socketRef = useRef(null);
   useEffect(() => {
-    socket.on('connect', () => {
+    socketRef.current = io('http://localhost:5000');
+
+    socketRef.current.on('connect', () => {
       console.log('Connected to websocket server');
-      socket.emit('join_room', { room: roomName });
+      socketRef.current.emit('join_room', { room: roomName });
     });
 
-    socket.on('receive_message', (message) => {
-      setMessages(prevMessages => [...prevMessages, message]);
+    socketRef.current.on('receive_message', (data) => {
+      const messageWithUsername = {
+        ...data.message,
+        username: data.message.sender.username || 'Unknown User',
+      };
+      setMessages(prevMessages => [...prevMessages, messageWithUsername]);
     });
 
     return () => {
-      socket.disconnect();
+      socketRef.current.disconnect();
     };
   }, [roomName]);
+
 
   useEffect(() => {
     const entrance = dispatch(enterRoomThunk(sessionUser.id, roomName));
@@ -87,14 +94,21 @@ export default function Room() {
     return () => {
       dispatch(leaveRoomAction(currentRoom?.room?.id, sessionUser.id));
     };
-  }, []);
+  }, [dispatch, roomName, sessionUser.id, currentRoom?.room?.id]);
+
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      socket.emit('send_message', { roomName, message: input, userId: sessionUser.id, roomId: currentRoom?.room?.id });
+      socketRef.current.emit('send_message', {
+        roomName,
+        content: input,
+        senderId: sessionUser.id,
+        roomId: currentRoom?.room?.id
+      });
       setInput('');
     }
   };
+
 
   if (loading || !sessionUser || !currentRoom) {
     return (
@@ -110,10 +124,13 @@ export default function Room() {
       <Container maxWidth={false} disableGutters className={classes.root}>
         <Paper className={classes.chatContainer}>
           <div className={classes.messagesSection}>
-            <List className={classes.messageList}>
+          <List className={classes.messageList}>
               {messages.map((message, index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={message} />
+                  <ListItemText
+                    primary={message.content}
+                    secondary={`${message.sender.username} - ${new Date(message.timestamp).toLocaleString()}`}
+                  />
                 </ListItem>
               ))}
             </List>

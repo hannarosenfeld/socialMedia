@@ -10,7 +10,7 @@ from .api.auth_routes import auth_routes
 from .api.room_routes import room_routes
 from .seeds import seed_commands
 from .config import Config
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 
 app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,15 +44,24 @@ def handle_join_room(data):
 @socketio.on('send_message')
 def handle_send_message(data):
     room_name = data['roomName']
-    message = data['message']
-    user_id = data['userId']
+    content = data['content']
+    sender_id = data['senderId']
     room_id = data['roomId']
 
-    new_message = ChatMessage(text=message, room_id=room_id, user_id=user_id)
-    db.session.add(new_message)
-    db.session.commit()
+    # Retrieve the User instance based on the sender_id
+    sender = User.query.get(sender_id)
 
-    socketio.emit('receive_message', {'message': message}, room=room_name)
+    if sender:
+        # Ensure that the sender is a valid user
+        new_message = ChatMessage(content=content, room_id=room_id, sender=sender)
+        db.session.add(new_message)
+        db.session.commit()
+
+        socketio.emit('receive_message', {
+            'message': new_message.to_dict()
+        }, room=room_name)
+    else:
+        print("Invalid sender ID:", sender_id)
 
 db.init_app(app)
 Migrate(app, db)
