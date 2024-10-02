@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from '@mui/system';
 import 'tailwindcss/tailwind.css';
 import { enterRoomThunk, leaveRoomAction } from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
