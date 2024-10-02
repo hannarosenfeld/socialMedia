@@ -1,59 +1,63 @@
 import { useEffect, useState, useRef } from 'react';
 import NavBar from "../NavBar";
-import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
-import { makeStyles } from '@mui/system';
+import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
+import { styled } from '@mui/system';
 import 'tailwindcss/tailwind.css';
 import { enterRoomThunk, leaveRoomAction } from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 
-const useStyles = makeStyles((theme) => ({
-  chatContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1,
-    height: '90vh',
-    width: '100%',
-  },
-  messagesSection: {
-    flex: 3,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  messageList: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: theme.spacing(2),
-  },
-  messageInputContainer: {
-    display: 'flex',
-    padding: theme.spacing(2),
-    borderTop: '1px solid #ccc',
-  },
-  messageInput: {
-    flex: 1,
-    marginRight: theme.spacing(2),
-  },
-  usersSection: {
-    flex: 1,
-    borderLeft: '1px solid #ccc',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(2),
-  },
-  loadingContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-  },
+// Styled components using MUI's styled utility
+const ChatContainer = styled(Paper)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  flex: 1,
+  height: '90vh',
+  width: '100%',
 }));
+
+const MessagesSection = styled(Box)({
+  flex: 3,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const MessageList = styled(List)(({ theme }) => ({
+  flex: 1,
+  overflowY: 'auto',
+  padding: theme.spacing(2),
+}));
+
+const MessageInputContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  padding: theme.spacing(2),
+  borderTop: '1px solid #ccc',
+}));
+
+const MessageInput = styled(TextField)(({ theme }) => ({
+  flex: 1,
+  marginRight: theme.spacing(2),
+}));
+
+const UsersSection = styled(Box)(({ theme }) => ({
+  flex: 1,
+  borderLeft: '1px solid #ccc',
+  display: 'flex',
+  flexDirection: 'column',
+  padding: theme.spacing(2),
+}));
+
+const LoadingContainer = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+});
 
 export default function Room() {
   const dispatch = useDispatch();
   const { roomName } = useParams();
-  const classes = useStyles();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const currentRoom = useSelector(state => state.room.currentRoom);
@@ -109,22 +113,21 @@ export default function Room() {
     }
   };
 
-
   if (loading || !sessionUser || !currentRoom) {
     return (
-      <div className={classes.loadingContainer}>
+      <LoadingContainer>
         <CircularProgress />
-      </div>
+      </LoadingContainer>
     );
   }
 
   return (
     <>
       <NavBar />
-      <Container maxWidth={false} disableGutters className={classes.root}>
-        <Paper className={classes.chatContainer}>
-          <div className={classes.messagesSection}>
-          <List className={classes.messageList}>
+      <Container maxWidth={false} disableGutters>
+        <ChatContainer>
+          <MessagesSection>
+            <MessageList>
               {messages.map((message, index) => (
                 <ListItem key={index}>
                   <ListItemText
@@ -133,10 +136,9 @@ export default function Room() {
                   />
                 </ListItem>
               ))}
-            </List>
-            <div className={classes.messageInputContainer}>
-              <TextField
-                className={classes.messageInput}
+            </MessageList>
+            <MessageInputContainer>
+              <MessageInput
                 variant="outlined"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -145,9 +147,9 @@ export default function Room() {
               <Button variant="contained" color="primary" onClick={handleSendMessage}>
                 Send
               </Button>
-            </div>
-          </div>
-          <div className={classes.usersSection}>
+            </MessageInputContainer>
+          </MessagesSection>
+          <UsersSection>
             <Typography variant="h6">Users</Typography>
             <List>
               {users.map((user, index) => (
@@ -156,8 +158,8 @@ export default function Room() {
                 </ListItem>
               ))}
             </List>
-          </div>
-        </Paper>
+          </UsersSection>
+        </ChatContainer>
       </Container>
     </>
   );
