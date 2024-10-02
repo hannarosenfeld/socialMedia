@@ -15,6 +15,8 @@ function App() {
   const sessionUser = useSelector((state) => state.session.user);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  console.log("🔥 Hiiiiii")
+
   useEffect(() => {
     dispatch(getAllRoomsThunk());
   }, [dispatch])
