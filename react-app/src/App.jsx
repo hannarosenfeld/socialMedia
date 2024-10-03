@@ -9,6 +9,7 @@ import Room from './components/Room';
 import { getAllRoomsThunk } from './store/room'
 import { app } from "./firebase.config"; 
 
+
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
