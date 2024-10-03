@@ -50,7 +50,7 @@ function App() {
           <>
             <Route path="/" element={<Dashboard sessionUser={sessionUser} />} />    
             <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
-            <Route path={`/users/${formattedUsername}`} element={<ProfilePage />} /> {/* Updated route */}
+            <Route path="/users/:username" element={<ProfilePage />} /> {/* Updated route */}
           </>
         )}
       </Routes>

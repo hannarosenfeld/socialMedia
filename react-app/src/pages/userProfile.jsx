@@ -1,13 +1,17 @@
 import { Avatar, Typography, Box, Button } from '@mui/material';
-import { Link, useParams } from 'react-router-dom'; // Import useParams to access the route params
-import { deepPurple } from '@mui/material/colors'; // Optional color for the avatar background
+import { Link, useParams } from 'react-router-dom'; 
+import { deepPurple } from '@mui/material/colors'; 
 
 const ProfilePage = () => {
-  // Access the username from the URL
-  const { username } = useParams(); // This will extract 'username' from the /users/:username route
+  const { username } = useParams();
+
+  // Ensure username is defined
+  if (!username) {
+    return <div>Error: Username not found</div>;
+  }
 
   // Decode the username (replace hyphens with spaces)
-  const decodedUsername = username.replace(/-/g, ' '); // Replace hyphens with spaces
+  const decodedUsername = username.replace(/-/g, ' '); 
 
   return (
     <Box
@@ -19,19 +23,15 @@ const ProfilePage = () => {
       sx={{ bgcolor: 'background.default', padding: 3 }}
     >
       <Box display="flex" alignItems="center">
-        {/* User Icon (Avatar) */}
         <Avatar sx={{ bgcolor: deepPurple[500], width: 100, height: 100, fontSize: 50 }}>
-          {decodedUsername[0].toUpperCase()} {/* Show the first letter of the decoded username */}
+          {decodedUsername[0].toUpperCase()}
         </Avatar>
 
-        {/* User Info */}
         <Box ml={3}>
-          {/* Username */}
           <Typography variant="h4" gutterBottom>
-            {decodedUsername} {/* Display the decoded username */}
+            {decodedUsername}
           </Typography>
 
-          {/* Edit Profile Link */}
           <Link to="/settings/profile" style={{ textDecoration: 'none' }}>
             <Button variant="outlined" color="primary">
               Edit Profile
