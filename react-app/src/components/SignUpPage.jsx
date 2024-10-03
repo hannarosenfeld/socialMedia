@@ -1,22 +1,38 @@
 import { useState } from "react";
-import { auth } from "../firebase.config.js"; // Import auth from your Firebase configuration
-import { createUserWithEmailAndPassword } from "firebase/auth"; // Import the function to create a user
+import { auth, db } from "../firebase/firebase.config.js"; // Ensure this is correctly importing your Firebase config
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile } from "firebase/auth"; // Import the necessary Firebase functions
+import { doc, setDoc } from "firebase/firestore"; // Import Firestore functions
 import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState("");
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null); // State for success message
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(null); // Reset error state
+    setError(null);
+    setLoading(true);
+
     try {
-      await signup(email, password);
-      setSuccessMessage("User registered successfully!"); // Set success message
+      // Check if the email is already in use
+      const emailMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (emailMethods.length) {
+        throw new Error("Email already in use. Please use a different email.");
+      }
+
+      const userCredential = await signup(email, password);
+      await saveUsername(userCredential.user.uid); // Save username after registration
+      await updateUserProfile(userCredential.user, userName); // Set the displayName in Firebase Auth
+
+      setSuccessMessage("User registered successfully!");
     } catch (err) {
-      setError(err.message); // Set error message
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,7 +41,33 @@ const SignUpPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return userCredential;
     } catch (error) {
-      throw error; // Throw the error to be caught in handleRegister
+      throw error;
+    }
+  };
+
+  // Function to save username in Firestore
+  const saveUsername = async (userId) => {
+    try {
+      await setDoc(doc(db, "users", userId), {
+        username: userName,
+        email: email,
+      });
+    } catch (error) {
+      console.error("Error saving username:", error);
+      throw error; // Handle the error accordingly
+    }
+  };
+
+  // Function to set the displayName in Firebase Auth
+  const updateUserProfile = async (user, userName) => {
+    try {
+      await updateProfile(user, {
+        displayName: userName
+      });
+      console.log("Display name set to:", userName);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
     }
   };
 
@@ -39,7 +81,7 @@ const SignUpPage = () => {
       sx={{ bgcolor: 'background.default', padding: 3 }}
     >
       <Typography variant="h4" gutterBottom>Register</Typography>
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleRegister} style={{ width: '100%', maxWidth: 400 }}>
         <TextField
           label="Email"
           variant="outlined"
@@ -49,6 +91,18 @@ const SignUpPage = () => {
           required
           fullWidth
           margin="normal"
+          disabled={loading}
+        />
+        <TextField
+          label="Username"
+          variant="outlined"
+          type="text"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+          disabled={loading}
         />
         <TextField
           label="Password"
@@ -59,9 +113,10 @@ const SignUpPage = () => {
           required
           fullWidth
           margin="normal"
+          disabled={loading}
         />
-        <Button variant="contained" color="primary" type="submit" fullWidth>
-          Register
+        <Button variant="contained" color="primary" type="submit" fullWidth disabled={loading}>
+          {loading ? "Registering..." : "Register"}
         </Button>
       </form>
       {error && <Typography color="error" sx={{ marginTop: 2 }}>{error}</Typography>}

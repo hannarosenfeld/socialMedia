@@ -56,7 +56,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <NavBar />
       {!loading && (
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >

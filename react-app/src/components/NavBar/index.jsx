@@ -2,33 +2,28 @@ import { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link, useNavigate } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
-// import { logout } from '../../store/session';
-import { auth } from '../../firebase.config';
+import { auth } from '../../firebase/firebase.config';
 import { signOut } from 'firebase/auth';
-
-import friends from "../../assets/friends.svg"
-import me from "../../assets/me.jpg"
+import friends from "../../assets/friends.svg";
+import me from "../../assets/me.jpg";
 
 const navigation = [
   { name: 'Chat Rooms', href: '#', current: true },
-]
+];
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
 
-export default function NavBar() {
-  // const dispatch = useDispatch();
+export default function NavBar({ sessionUser }) {  // Accept sessionUser as a prop
   const navigate = useNavigate(); 
 
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
       await signOut(auth); // Sign out from Firebase
-      // dispatch(logout()); // Dispatch your logout action
     } catch (error) {
-      console.error("Logout Error: ", error); // Handle error if needed
+      console.error("Logout Error: ", error);
     }
   };
 
@@ -55,7 +50,7 @@ export default function NavBar() {
                   <Link to="/">
                     <img
                       className="h-8 w-auto text-pink-400"
-                      src={friends}                  
+                      src={friends}
                       alt="Your Company"
                     />
                   </Link>
@@ -78,6 +73,8 @@ export default function NavBar() {
                   </div>
                 </div>
               </div>
+
+            {sessionUser ? (
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 <button
                   type="button"
@@ -111,6 +108,10 @@ export default function NavBar() {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      {/* Show user's display name or email in dropdown */}
+                      <div className="block px-4 py-2 text-sm text-gray-700">
+                        {sessionUser.displayName ? sessionUser.displayName : "Guest"}
+                      </div>
                       <Menu.Item>
                         {({ active }) => (
                           <a
@@ -145,6 +146,7 @@ export default function NavBar() {
                   </Transition>
                 </Menu>
               </div>
+            ) : ''}
             </div>
           </div>
 
@@ -169,5 +171,5 @@ export default function NavBar() {
         </>
       )}
     </Disclosure>
-  )
+  );
 }

@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom'; 
-import { auth } from './firebase.config'; // Import the auth from your Firebase config
+import { auth } from './firebase/firebase.config.js'; // Import the auth from your Firebase config
 import { onAuthStateChanged } from "firebase/auth"; // Import the function to check auth state
+// import { login } from "./store/session.js";
+import NavBar from './components/NavBar/index.jsx';
 
 import SignUpPage from './components/SignUpPage.jsx';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import Room from './components/Room';
+import { useDispatch } from 'react-redux';
 
 function App() {  
-  const [sessionUser, setSessionUser] = useState(null);
+  const dispatch = useDispatch();
+  const [sessionUser, setSessionUser] = useState(null); // Store the entire user object
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Monitor authentication state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in
-        console.log("User signed in:", user); // Log user details
-        setSessionUser(user); // Set the session user
+        console.log("User signed in:", user);
+        setSessionUser(user); // Store the user object in state
+        // dispatch(login(user.email, user.username)); // Example of dispatching user email
       } else {
-        // User is signed out
-        console.log("No user is signed in."); // Log when no user is signed in
-        setSessionUser(null); // Clear user state
+        console.log("No user is signed in.");
+        setSessionUser(null);
       }
-      setIsLoaded(true); // Set loading to false once checked
+      setIsLoaded(true);
     });
 
     // Cleanup the listener on unmount
@@ -33,7 +35,10 @@ function App() {
 
   // Log sessionUser whenever it changes
   useEffect(() => {
-    console.log("Session user:", sessionUser);
+    if (sessionUser) {
+      console.log("Session user ID:", sessionUser); // Log user ID
+      console.log("Session user email:", sessionUser.email); // Log user email
+    }
   }, [sessionUser]);
 
   if (!isLoaded) {
@@ -42,6 +47,7 @@ function App() {
 
   return (
     <>
+    <NavBar sessionUser={sessionUser} />
       <Routes>
         {!sessionUser ? (
           <>
@@ -50,8 +56,9 @@ function App() {
           </>
         ) : (
           <>
-            <Route path="/" element={<Dashboard />} />    
-            <Route path="/rooms/:roomName" element={<Room />} />
+            {/* Pass the sessionUser (which contains email or ID) as a prop to Dashboard */}
+            <Route path="/" element={<Dashboard sessionUser={sessionUser} />} />    
+            <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
           </>
         )}
       </Routes>
