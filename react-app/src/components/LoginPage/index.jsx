@@ -1,94 +1,78 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/session';
-import { Link } from 'react-router-dom'; // Import Link instead of NavLink
+import { useState } from "react";
+import { auth } from "../../firebase.config.js"; // Import auth from your Firebase configuration
+import { signInWithEmailAndPassword } from "firebase/auth"; // Import the function to sign in a user
+import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
 
-export default function LoginPage() {
-    const dispatch = useDispatch();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null); // State for success message
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await dispatch(login(email, password));
-    };
-    
-    return (
-        <div style={{
-            width: "100%", 
-            height: "100vh",                   
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center', // Align content vertically in the center
-            textAlign: 'center', // Align text in the center
-            margin: "0 auto"}}>
-            <form onSubmit={handleSubmit}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center', // Align content vertically in the center
-                        textAlign: 'center', // Align text in the center
-                        margin: "0 auto",
-                        //border: '2px solid hotpink',
-                        '& > :not(style)': {
-                            m: 1,
-                            width: '100%', // Default width
-                        },
-                        '@media (min-width: 600px)': {
-                            maxWidth: 600, // Max width for desktop
-                        },
-                        '@media (max-width: 768px)': {
-                            width: '90%', // Width for tablets and mobile
-                        },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
-                    <TextField 
-                        id="outlined-basic" 
-                        label={ email ? '' : 'Email'}
-                        variant="outlined" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)} 
-                    />
-                    <TextField 
-                        id="outlined-basic" 
-                        label={ password ? '' : 'Password'}
-                        variant="outlined" 
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <Button 
-                        variant="outlined" 
-                        type="submit" 
-                    >
-                        LOGIN
-                    </Button>
-            <Link 
-                to="/signup" 
-                style={{
-                    marginTop: '1em',
-                    textDecoration: 'none',
-                    color: 'blue',
-                }}
-            >
-                <Button variant="text" color="secondary" style={{marginLeft: "auto", width: "fit-content", display: 'flex', alignItems: 'center'}}>
-                <span>Signup here</span>
-                <span class="material-symbols-outlined">
-                arrow_forward
-                </span>
-                </Button>
-            </Link>
-                </Box> 
-            </form>
-            {/* Use Link instead of NavLink */}
-        </div>
-    );
-}
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null); // Reset error state
+    try {
+      await login(email, password);
+      setSuccessMessage("User logged in successfully!"); // Set success message
+    } catch (err) {
+      setError(err.message); // Set error message
+    }
+  };
+
+  const login = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential;
+    } catch (error) {
+      throw error; // Throw the error to be caught in handleLogin
+    }
+  };
+
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      sx={{ bgcolor: 'background.default', padding: 3 }}
+    >
+      <Typography variant="h4" gutterBottom>Login</Typography>
+      <form onSubmit={handleLogin}>
+        <TextField
+          label="Email"
+          variant="outlined"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Password"
+          variant="outlined"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <Button variant="contained" color="primary" type="submit" fullWidth>
+          Login
+        </Button>
+      </form>
+      {error && <Typography color="error" sx={{ marginTop: 2 }}>{error}</Typography>}
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage(null)}
+        message={successMessage}
+      />
+    </Box>
+  );
+};
+
+export default Login;

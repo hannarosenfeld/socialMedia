@@ -4,7 +4,7 @@ import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import { Route, Routes } from 'react-router-dom'; 
 import { authenticate } from "./store/session";
-import SignUpPage from './components/SIgnUpPage';
+import SignUpPage from './components/SignUpPage';
 import Room from './components/Room';
 import { getAllRoomsThunk } from './store/room'
 import { app } from "./firebase.config"; 
