@@ -1,30 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { Route, Routes } from 'react-router-dom'; 
 import { authenticate } from "./store/session";
-
-import { app } from "./firebase.config"; 
-import { getAllRoomsThunk } from './store/room'
+import { getAllRoomsThunk } from './store/room';
 
 import SignUpPage from './components/SignUpPage';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
-
 import Room from './components/Room';
-
-
 
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  console.log("🔥 Hiiiiii")
-
   useEffect(() => {
     dispatch(getAllRoomsThunk());
-  }, [dispatch])
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(authenticate())
@@ -33,27 +25,25 @@ function App() {
       });
   }, [dispatch]);
 
+  if (!isLoaded) {
+    return <div>Loading...</div>; // Optional loading indicator
+  }
 
   return (
     <>
-    {isLoaded && (    
-      <>
-        {!sessionUser && (
-          <Routes>
-            <Route exact path="/signup" element={<SignUpPage/>}/>
-            <Route excact path="/" element={<LoginPage/>}/>
-          </Routes>
-        )}
-        {sessionUser && (
-          <Routes>
-            <Route exact path="/" element={<Dashboard />}/>    
-            <Route path="/rooms/:roomName" element={<Room />}/>
-          </Routes>
-        )}
-      </>
-    )}
+      {!sessionUser ? (
+        <Routes>
+          <Route exact path="/signup" element={<SignUpPage />} />
+          <Route exact path="/" element={<LoginPage />} />
+        </Routes>
+      ) : (
+        <Routes>
+          <Route exact path="/" element={<Dashboard />} />    
+          <Route path="/rooms/:roomName" element={<Room />} />
+        </Routes>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
