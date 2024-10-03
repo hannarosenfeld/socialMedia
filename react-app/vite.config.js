@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from "tailwindcss";
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
-
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), ],
+  plugins: [
+    react(),
+  ],
+  css: {
+    postcss: {
+      plugins: [tailwindcss(), autoprefixer()],
+    },
+  },
   esbuild: {
     jsxInject: `import React from 'react'`,
   },
@@ -16,20 +22,28 @@ export default defineConfig({
     cors: true,
     proxy: {
       "/api/": {
-      target: "http://127.0.0.1:5000/api/",
-      changeOrigin: true,
-      secure: false,
-      rewrite: (path) => path.replace(/^\/api/, ""),
+        target: "http://127.0.0.1:5000/api/",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
+    },
   },
   resolve: {
     alias: {
       '@': '/src', // Set up an alias for easier imports
     },
-    css: {
-      postcss: {
-        plugins: [tailwindcss()],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor'; // Creates a separate vendor chunk for dependencies
+          }
+        },
       },
     },
-    },
-}});
+    chunkSizeWarningLimit: 1000, // Adjust the chunk size limit if necessary
+  },
+});
