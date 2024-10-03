@@ -1,18 +1,17 @@
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Link } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { logout } from '../../store/session'
+import { Fragment } from 'react';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Link, useNavigate } from 'react-router-dom';
+// import { useDispatch } from 'react-redux';
+// import { logout } from '../../store/session';
+import { auth } from '../../firebase.config';
+import { signOut } from 'firebase/auth';
 
 import friends from "../../assets/friends.svg"
 import me from "../../assets/me.jpg"
 
 const navigation = [
   { name: 'Chat Rooms', href: '#', current: true },
-//   { name: 'Team', href: '#', current: false },
-//   { name: 'Projects', href: '#', current: false },
-//   { name: 'Calendar', href: '#', current: false },
 ]
 
 function classNames(...classes) {
@@ -20,11 +19,17 @@ function classNames(...classes) {
 }
 
 export default function NavBar() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const navigate = useNavigate(); 
 
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
-    dispatch(logout());
+    try {
+      await signOut(auth); // Sign out from Firebase
+      // dispatch(logout()); // Dispatch your logout action
+    } catch (error) {
+      console.error("Logout Error: ", error); // Handle error if needed
+    }
   };
 
   return (
@@ -34,7 +39,7 @@ export default function NavBar() {
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                {/* Mobile menu button*/}
+                {/* Mobile menu button */}
                 <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
@@ -48,14 +53,12 @@ export default function NavBar() {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
                   <Link to="/">
-                  <img
-                    className="h-8 w-auto text-pink-400"
-                    style={{color: "hotpink"}}
-                    src={friends}                  
-                    alt="Your Company"
-                  />
+                    <img
+                      className="h-8 w-auto text-pink-400"
+                      src={friends}                  
+                      alt="Your Company"
+                    />
                   </Link>
-
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -134,7 +137,6 @@ export default function NavBar() {
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             onClick={handleLogout}
                           >
-
                             Sign out
                           </div>
                         )}

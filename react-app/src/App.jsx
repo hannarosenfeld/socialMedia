@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom'; 
-import { authenticate } from "./store/session";
-import { getAllRoomsThunk } from './store/room';
+import { auth } from './firebase.config'; // Import the auth from your Firebase config
+import { onAuthStateChanged } from "firebase/auth"; // Import the function to check auth state
 
 import SignUpPage from './components/SignUpPage.jsx';
 import LoginPage from './components/LoginPage';
@@ -10,20 +9,32 @@ import Dashboard from './components/Dashboard';
 import Room from './components/Room';
 
 function App() {  
-  const dispatch = useDispatch();
-  const sessionUser = useSelector((state) => state.session.user);
+  const [sessionUser, setSessionUser] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    dispatch(getAllRoomsThunk());
-  }, [dispatch]);
+    // Monitor authentication state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        console.log("User signed in:", user); // Log user details
+        setSessionUser(user); // Set the session user
+      } else {
+        // User is signed out
+        console.log("No user is signed in."); // Log when no user is signed in
+        setSessionUser(null); // Clear user state
+      }
+      setIsLoaded(true); // Set loading to false once checked
+    });
 
+    // Cleanup the listener on unmount
+    return () => unsubscribe();
+  }, []);
+
+  // Log sessionUser whenever it changes
   useEffect(() => {
-    dispatch(authenticate())
-      .then(() => {
-        setIsLoaded(true);
-      });
-  }, [dispatch]);
+    console.log("Session user:", sessionUser);
+  }, [sessionUser]);
 
   if (!isLoaded) {
     return <div>Loading...</div>; // Optional loading indicator
@@ -33,7 +44,7 @@ function App() {
     <>
       {!sessionUser ? (
         <Routes>
-          <Route exact path="/signup" element={<SignUpPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route exact path="/" element={<LoginPage />} />
         </Routes>
       ) : (
