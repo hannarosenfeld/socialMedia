@@ -4,7 +4,6 @@ import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import { Route, Routes } from 'react-router-dom'; 
 import { authenticate } from "./store/session";
-import './App.css';
 import SignUpPage from './components/SIgnUpPage';
 import Room from './components/Room';
 import { getAllRoomsThunk } from './store/room'
