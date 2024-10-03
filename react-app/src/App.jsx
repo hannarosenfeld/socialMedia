@@ -7,7 +7,7 @@ import { authenticate } from "./store/session";
 import SignUpPage from './components/SIgnUpPage';
 import Room from './components/Room';
 import { getAllRoomsThunk } from './store/room'
-
+import { app } from "./firebase.config"; 
 
 function App() {  
   const dispatch = useDispatch();
