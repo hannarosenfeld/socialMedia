@@ -3,7 +3,7 @@ import { auth } from "../../firebase.config.js"; // Import auth from your Fireba
 import { createUserWithEmailAndPassword } from "firebase/auth"; // Import the function to create a user
 import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
 
-const Register = () => {
+const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -75,4 +75,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default SignUpPage;
