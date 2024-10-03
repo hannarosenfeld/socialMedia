@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth } from "../../firebase.config.js"; // Import auth from your Firebase configuration
+import { auth } from "../firebase.config.js"; // Import auth from your Firebase configuration
 import { createUserWithEmailAndPassword } from "firebase/auth"; // Import the function to create a user
 import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
 
