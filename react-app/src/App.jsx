@@ -42,17 +42,19 @@ function App() {
 
   return (
     <>
-      {!sessionUser ? (
-        <Routes>
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route exact path="/" element={<LoginPage />} />
-        </Routes>
-      ) : (
-        <Routes>
-          <Route exact path="/" element={<Dashboard />} />    
-          <Route path="/rooms/:roomName" element={<Room />} />
-        </Routes>
-      )}
+      <Routes>
+        {!sessionUser ? (
+          <>
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/" element={<LoginPage />} />
+          </>
+        ) : (
+          <>
+            <Route path="/" element={<Dashboard />} />    
+            <Route path="/rooms/:roomName" element={<Room />} />
+          </>
+        )}
+      </Routes>
     </>
   );
 }
