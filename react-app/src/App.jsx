@@ -7,7 +7,7 @@ import SignUpPage from './components/SignUpPage.jsx';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import Room from './components/Room';
-import ProfilePage from './components/ProfilePage'; // Import the ProfilePage component
+import ProfilePage from './pages/userProfile.jsx';
 import { useDispatch } from 'react-redux';
 
 function App() {  
