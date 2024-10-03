@@ -35,7 +35,7 @@ function App() {
   }
 
   // Format username for URL
-  const formattedUsername = sessionUser ? sessionUser.displayName.replace(/\s+/g, '-') : 'Guest';
+  const formattedUsername = sessionUser ? sessionUser?.displayName?.replace(/\s+/g, '-') : 'Guest';
 
   return (
     <>
