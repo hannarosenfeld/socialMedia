@@ -1,88 +1,36 @@
-import { GET_USER } from "./user";
+// session.js
+
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
 
+// Initial state
+const initialState = {
+    user: null, // Default state for user
+};
+
+// Action creators
 export const setUser = (user) => ({
-	type: SET_USER,
-	payload: user,
+    type: SET_USER,
+    payload: {
+        uid: user.uid, // Store only the UID
+        email: user.email, // Store other fields you need
+        displayName: user.displayName, // Example: Store display name if available
+        // Add more fields as needed
+    },
 });
 
-const removeUser = () => ({
-	type: REMOVE_USER,
+export const removeUser = () => ({
+    type: REMOVE_USER,
 });
 
-export const authenticate = () => async (dispatch) => {
-	const response = await fetch("/api/auth/", {
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-	if (response.ok) {
-		const data = await response.json();
-		if (data.errors) {
-			return;
-		}
-
-		dispatch(setUser(data));
-	}
-};
-
-export const login = (email,username) => async (dispatch) => {
-	console.log("🔫", email, username)
-	if ( email ) dispatch(setUser(data));
-	else return ["An error occurred. Please try again."];
-};
-
-export const logout = () => async (dispatch) => {
-	const response = await fetch("/api/auth/logout", {
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-
-	if (response.ok) {
-		dispatch(removeUser());
-	}
-};
-
-export const signUp = (username, email, password) => async (dispatch) => {
-	const response = await fetch("/api/auth/signup", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			username,
-			email,
-			password,
-		}),
-	});
-
-	if (response.ok) {
-		const data = await response.json();
-		dispatch(setUser(data));
-		return null;
-	} else if (response.status < 500) {
-		const data = await response.json();
-		if (data.errors) {
-			return data.errors;
-		}
-	} else {
-		return ["An error occurred. Please try again."];
-	}
-};
-
-const initialState = { user: null };
-
+// Reducer
 export default function reducer(state = initialState, action) {
-	switch (action.type) {
-		case GET_USER:
-			return state;
-		case SET_USER:
-			return { user: action.payload };
-		case REMOVE_USER:
-			return { user: null };
-		default:
-			return state;
-	}
+    switch (action.type) {
+        case SET_USER:
+            return { ...state, user: action.payload }; // Only serializable data is stored
+        case REMOVE_USER:
+            return { ...state, user: null }; // Clear user on removal
+        default:
+            return state; // Return current state for unrecognized actions
+    }
 }

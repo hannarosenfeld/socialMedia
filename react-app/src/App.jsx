@@ -8,34 +8,35 @@ import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import Room from './components/Room';
 import ProfilePage from './pages/userProfile.jsx';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser, removeUser } from './store/session'; // Import session actions
 
 function App() {  
   const dispatch = useDispatch();
-  const [sessionUser, setSessionUser] = useState(null); 
+  const sessionUser = useSelector((state) => state.session.user); // Get sessionUser from Redux store
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User signed in:", user);
-        setSessionUser(user); 
+        dispatch(setUser(user));  // Dispatch the user to Redux
       } else {
         console.log("No user is signed in.");
-        setSessionUser(null);
+        dispatch(removeUser());   // Dispatch removal of user from Redux when signed out
       }
       setIsLoaded(true);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]); // Add dispatch to dependency array
 
   if (!isLoaded) {
     return <div>Loading...</div>; 
   }
 
   // Format username for URL
-  const formattedUsername = sessionUser ? sessionUser?.displayName?.replace(/\s+/g, '-') : 'Guest';
+  const formattedUsername = sessionUser ? sessionUser.displayName?.replace(/\s+/g, '-') : 'Guest';
 
   return (
     <>

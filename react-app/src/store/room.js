@@ -30,6 +30,7 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 };
 
 export const enterRoomThunk = (userId, roomName) => async (dispatch) => {
+    console.log("🐩 in thunk", userId, roomName)
     const entrance = {
         "user_id": userId,
         "room_name": roomName.split("-").join(" ")
@@ -57,7 +58,7 @@ const initialState = {
     allRooms: {},
     currentRoom: {
         room: {},
-        users: []
+        users: [] // Adding users to track who is in the current room
     }
 };
 
@@ -68,9 +69,13 @@ const roomReducer = (state = initialState, action) => {
             room = action.payload.room;
             const user = action.payload.user.username;
             const currentUsers = state.currentRoom.users || [];
+
+            // If the user is already in the room, don't re-add them
             if (currentUsers.includes(user)) {
                 return state;
             }
+
+            // Updated logic to handle `currentRoom` properly
             return {
                 ...state,
                 allRooms: {
@@ -81,9 +86,8 @@ const roomReducer = (state = initialState, action) => {
                     }
                 },
                 currentRoom: {
-                    ...state.currentRoom,
-                    room: action.payload.room,
-                    users: [...currentUsers, user]
+                    room: action.payload.room, // Setting the room details
+                    users: [...currentUsers, user] // Adding the new user to the room
                 }
             };
         case LEAVE_ROOM:
@@ -99,7 +103,11 @@ const roomReducer = (state = initialState, action) => {
                             activeUsers: updatedUsers
                         }
                     },
-                    currentRoom: {}
+                    // Clear currentRoom when leaving
+                    currentRoom: {
+                        room: {},
+                        users: [] 
+                    }
                 };
             }
             return state;

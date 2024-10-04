@@ -65,53 +65,55 @@ export default function Room() {
   const [loading, setIsLoading] = useState(true);
   const users = currentRoom?.users;
 
-  const socketRef = useRef(null);
-  useEffect(() => {
-    socketRef.current = io('http://localhost:5000');
-
-    socketRef.current.on('connect', () => {
-      console.log('Connected to websocket server');
-      socketRef.current.emit('join_room', { room: roomName });
-    });
-
-    socketRef.current.on('receive_message', (data) => {
-      const messageWithUsername = {
-        ...data.message,
-        username: data.message.sender.username || 'Unknown User',
-      };
-      setMessages(prevMessages => [...prevMessages, messageWithUsername]);
-    });
-
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [roomName]);
-
+  console.log("💖", currentRoom, sessionUser)
 
   useEffect(() => {
-    const entrance = dispatch(enterRoomThunk(sessionUser.id, roomName));
+    const entrance = dispatch(enterRoomThunk(sessionUser.uid, roomName));
 
     Promise.all([entrance])
       .then(() => setIsLoading(false))
       .catch((err) => console.log("🚨", err));
 
-    return () => {
-      dispatch(leaveRoomAction(currentRoom?.room?.id, sessionUser.id));
-    };
+      if (currentRoom?.room?.uid) {
+        dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.uid));
+      }
+      
   }, [dispatch, roomName, sessionUser.id, currentRoom?.room?.id]);
 
 
-  const handleSendMessage = () => {
-    if (input.trim()) {
-      socketRef.current.emit('send_message', {
-        roomName,
-        content: input,
-        senderId: sessionUser.id,
-        roomId: currentRoom?.room?.id
-      });
-      setInput('');
-    }
-  };
+  // const socketRef = useRef(null);
+  // useEffect(() => {
+  //   socketRef.current = io('http://localhost:5000');
+
+  //   socketRef.current.on('connect', () => {
+  //     console.log('Connected to websocket server');
+  //     socketRef.current.emit('join_room', { room: roomName });
+  //   });
+
+  //   socketRef.current.on('receive_message', (data) => {
+  //     const messageWithUsername = {
+  //       ...data.message,
+  //       username: data.message.sender.username || 'Unknown User',
+  //     };
+  //     setMessages(prevMessages => [...prevMessages, messageWithUsername]);
+  //   });
+
+  //   return () => {
+  //     socketRef.current.disconnect();
+  //   };
+  // }, [roomName]);
+
+  // const handleSendMessage = () => {
+  //   if (input.trim()) {
+  //     socketRef.current.emit('send_message', {
+  //       roomName,
+  //       content: input,
+  //       senderId: sessionUser.id,
+  //       roomId: currentRoom?.room?.id
+  //     });
+  //     setInput('');
+  //   }
+  // };
 
   if (loading || !sessionUser || !currentRoom) {
     return (
