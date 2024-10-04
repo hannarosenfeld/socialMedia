@@ -125,6 +125,7 @@ export default function Room() {
         sender: {
           uid: sessionUser.uid,
           username: sessionUser.displayName,
+          color: sessionUser.color
         },
         timestamp: new Date().toISOString(),
       };
@@ -157,7 +158,7 @@ export default function Room() {
                 primary={message?.content}
                 secondary={
                   <span>
-                    <span style={{ color: sessionUser.color }}>
+                    <span style={{ color: message?.sender?.color || "black" }}>
                       {message?.sender?.username}
                     </span>
                     {' - '}

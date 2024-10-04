@@ -7,7 +7,7 @@ import { saveUserData, getUserData } from '../services/userService.js';
 const EditProfileForm = () => {
     const sessionUser = useSelector((state) => state.session.user);
     const userId = sessionUser.uid; // Assuming the user ID is stored in the session user
-    const [username, setUsername] = useState(sessionUser.displayName);
+    const [username, setUsername] = useState(sessionUser.username);
     const [color, setColor] = useState('#000000');
 
     useEffect(() => {
