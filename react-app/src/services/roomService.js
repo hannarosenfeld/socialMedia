@@ -101,22 +101,31 @@ export const addUserToRoom = async (roomId, user) => {
   }
 };
 
-// New function to send messages to a room
 export const sendMessageToRoom = async (roomId, message) => {
   console.log("Sending message to room:", roomId, message);
+
   if (!roomId || !message) {
     console.error("Invalid room ID or message data.");
     return;
   }
 
+  // Filter out any undefined values in the message object
+  const sanitizedMessage = {
+    content: message.content,
+    sender: {
+      uid: message.sender.uid,
+      username: message.sender.username,
+      color: message.sender.color || null, // Fallback to null if color is undefined
+    },
+    timestamp: message.timestamp
+  };
+
+  console.log("🍉", sanitizedMessage)
+
   try {
     const roomDocRef = doc(db, "rooms", roomId);
     await updateDoc(roomDocRef, {
-      messages: arrayUnion({
-        content: message.content,
-        sender: message.sender, // user information (uid, username)
-        timestamp: message.timestamp, // new Date()
-      })
+      messages: arrayUnion(sanitizedMessage)
     });
     console.log('Message sent successfully');
   } catch (error) {
@@ -124,22 +133,30 @@ export const sendMessageToRoom = async (roomId, message) => {
   }
 };
 
-// New function to send messages to a room
+
 export const addMessage = async (roomId, message) => {
   console.log("Sending message to room:", roomId, message);
+
   if (!roomId || !message) {
     console.error("Invalid room ID or message data.");
     return;
   }
 
+  // Sanitize the message object to ensure no undefined values are passed
+  const sanitizedMessage = {
+    content: message.content || "", // Fallback to empty string if undefined
+    sender: {
+      uid: message.sender?.uid || "", // Ensure uid is defined
+      username: message.sender?.username || "Anonymous", // Fallback if username is undefined
+      color: message.sender?.color || "defaultColor" // Fallback to a default color if undefined
+    },
+    timestamp: message.timestamp || new Date().toISOString() // Ensure timestamp is valid
+  };
+
   try {
     const roomDocRef = doc(db, "rooms", roomId);
     await updateDoc(roomDocRef, {
-      messages: arrayUnion({
-        content: message.content,
-        sender: message.sender, // user information (uid, username)
-        timestamp: message.timestamp, // new Date()
-      })
+      messages: arrayUnion(sanitizedMessage)
     });
     console.log('Message sent successfully');
   } catch (error) {
