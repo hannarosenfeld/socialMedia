@@ -3,7 +3,7 @@ import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import 'tailwindcss/tailwind.css';
-import leaveRoomAction from '../../store/room';
+// import roomReducer, leaveRoomAction from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchRoomByName } from '../../services/roomService';
