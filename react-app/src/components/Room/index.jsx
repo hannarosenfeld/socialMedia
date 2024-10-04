@@ -68,7 +68,7 @@ export default function Room() {
   console.log("💖", currentRoom, sessionUser)
 
   useEffect(() => {
-    const entrance = dispatch(enterRoomThunk(sessionUser.uid, roomName));
+    const entrance = dispatch(enterRoomThunk(sessionUser, currentRoom));
 
     Promise.all([entrance])
       .then(() => setIsLoading(false))
@@ -125,7 +125,6 @@ export default function Room() {
 
   return (
     <>
-      <NavBar />
       <Container maxWidth={false} disableGutters>
         <ChatContainer>
           <MessagesSection>
@@ -146,9 +145,9 @@ export default function Room() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message..."
               />
-              <Button variant="contained" color="primary" onClick={handleSendMessage}>
+              {/* <Button variant="contained" color="primary" onClick={handleSendMessage}>
                 Send
-              </Button>
+              </Button> */}
             </MessageInputContainer>
           </MessagesSection>
           <UsersSection>

@@ -48,8 +48,8 @@ const Dashboard = () => {
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
             {chatRooms.map(chatroom => (
-              <Link key={chatroom.roomInfo.id} to={`/rooms/${chatroom?.roomInfo.name ? chatroom.roomInfo.name.split(' ').join('-').toLowerCase() : ''}`}>
-              {console.log("🤦🏻‍♀️", chatroom.roomInfo.name)}
+              <Link key={chatroom.roomInfo.id} to={`/rooms/${chatroom?.roomInfo?.name ? chatroom.roomInfo?.name.split(' ').join('-').toLowerCase() : ''}`}>
+              {console.log("🤦🏻‍♀️", chatroom.roomInfo?.name)}
                 <Card className="room-card" style={{width: "25em"}}>
                   <CardContent style={{display: "flex", gap: "1em"}}>
                     <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
@@ -58,7 +58,7 @@ const Dashboard = () => {
                     <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
                       <div style={{display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center"}}>
                         <Typography component="h5">
-                          {chatroom.roomInfo.name}
+                          {chatroom.roomInfo?.name}
                         </Typography>
                         {/* <Typography style={{fontSize: "0.8em"}}>
                           {chatroom.description}
@@ -105,11 +105,11 @@ const Dashboard = () => {
             label="Name"
             variant="outlined"
             name="name"
-            value={roomData.name}
+            value={roomData?.name}
             onChange={handleChange}
             sx={{ mb: 2 }}
           />
-          <TextField
+          {/* <TextField
             fullWidth
             label="Description"
             variant="outlined"
@@ -119,7 +119,7 @@ const Dashboard = () => {
             multiline
             rows={4}
             sx={{ mb: 2 }}
-          />
+          /> */}
           <Button onClick={handleSubmit} variant="contained" color="primary">
             Add
           </Button>

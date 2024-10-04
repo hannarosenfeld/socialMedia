@@ -1,5 +1,6 @@
 import { fetchRooms, addRoom } from '../services/roomService';
 
+// Action Types
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
 const ENTER_ROOM = "room/ENTER_ROOM";
@@ -13,10 +14,10 @@ export const leaveRoomAction = (roomId, userId) => ({ type: LEAVE_ROOM, roomId, 
 // Thunks
 export const addRoomThunk = (roomData) => async (dispatch) => {
     try {
-      const newRoom = await addRoom(roomData);
-      dispatch({ type: ADD_ROOM, room: newRoom });
+        const newRoom = await addRoom(roomData);
+        dispatch({ type: ADD_ROOM, room: newRoom });
     } catch (error) {
-      console.log("Error adding room:", error);
+        console.log("Error adding room:", error);
     }
 };
 
@@ -29,31 +30,17 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-export const enterRoomThunk = (userId, roomName) => async (dispatch) => {
-    console.log("🐩 in thunk", userId, roomName)
+export const enterRoomThunk = (user, room) => async (dispatch) => {
+    console.log("🐩 in thunk", user, room);
     const entrance = {
-        "user_id": userId,
-        "room_name": roomName.split("-").join(" ")
+        "user": user,
+        "room": room
     };
-    const res = await fetch(`/api/rooms/${roomName}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(entrance)
-    });
-    if (res.ok) {
-        const data = await res.json();
-        dispatch(enterRoomAction(data));
-        return data;
-    } else {
-        const err = await res.json();
-        return err;
-    }
+    const data = dispatch(enterRoomAction(entrance));
+    return data
 };
 
-
-// Reducer
+// Initial State
 const initialState = {
     allRooms: {},
     currentRoom: {
@@ -62,10 +49,12 @@ const initialState = {
     }
 };
 
+// Reducer
 const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
+            console.log("🔥", action)            
             room = action.payload.room;
             const user = action.payload.user.username;
             const currentUsers = state.currentRoom.users || [];
