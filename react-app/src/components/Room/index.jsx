@@ -3,7 +3,7 @@ import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typo
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { addUserToRoom, fetchRoomByName, removeUserFromRoom } from '../../services/roomService';
+import { addUserToRoom, fetchRoomByName, removeUserFromRoom, addMessage, listenForMessages } from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -73,9 +73,14 @@ export default function Room() {
 
         // Add user to the room and then fetch updated users
         await addUserToRoom(fetchedRoom.id, sessionUser);
-        // After adding the user, fetch the active users list again
         await setActiveUsers(fetchedRoom.users);
 
+        // Set up real-time message listener
+        const unsubscribe = listenForMessages(fetchedRoom.id, (newMessages) => {
+          setMessages(newMessages);
+        });
+
+        return () => unsubscribe(); // Cleanup listener on unmount
       } catch (err) {
         console.error("Error fetching room: ", err);
       } finally {
@@ -97,21 +102,25 @@ export default function Room() {
     };
   }, [dispatch, roomName, sessionUser]);
 
-  // Fetch active users when the room data changes
-  useEffect(() => {
-    const fetchActiveUsers = async () => {
-      if (room) {
-        try {
-          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-          setActiveUsers(updatedRoom.users);
-        } catch (err) {
-          console.error("Error fetching active users: ", err);
-        }
-      }
-    };
+  const handleSendMessage = async () => {
+    if (input.trim() && roomIdRef.current) {
+      const message = {
+        content: input,
+        sender: {
+          uid: sessionUser.uid,
+          username: sessionUser.displayName,
+        },
+        timestamp: new Date().toISOString(),
+      };
 
-    fetchActiveUsers();
-  }, [room, roomName]);
+      try {
+        await addMessage(roomIdRef.current, message);
+        setInput(''); // Clear the input field after sending
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -129,8 +138,8 @@ export default function Room() {
             {messages.map((message, index) => (
               <ListItem key={index}>
                 <ListItemText
-                  primary={message.content}
-                  secondary={`${message.sender.username} - ${new Date(message.timestamp).toLocaleString()}`}
+                  primary={message?.content}
+                  secondary={`${message?.sender?.username} - ${new Date(message.timestamp).toLocaleString()}`}
                 />
               </ListItem>
             ))}
@@ -142,10 +151,9 @@ export default function Room() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type a message..."
             />
-            {/* Uncomment the button to enable sending messages */}
-            {/* <Button variant="contained" color="primary" onClick={handleSendMessage}>
+            <Button variant="contained" color="primary" onClick={handleSendMessage}>
               Send
-            </Button> */}
+            </Button>
           </MessageInputContainer>
         </MessagesSection>
         <UsersSection>

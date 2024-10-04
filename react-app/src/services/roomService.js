@@ -1,10 +1,10 @@
-import { doc, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase.config';
 
 // Function to remove a user from the room
 export const removeUserFromRoom = async (roomId, user) => {
-  console.log("🤾🏼‍♂️ in remove user from room")
-  console.log("🧘🏾‍♂️", roomId, user)
+  console.log("🤾🏼‍♂️ in remove user from room");
+  console.log("🧘🏾‍♂️", roomId, user);
   if (!roomId || !user) {
     console.error("Invalid room ID or user data.");
     return;
@@ -35,6 +35,7 @@ export const fetchRoomByName = async (roomName) => {
     return null;
   }
 };
+
 export const fetchRooms = async () => {
   const roomsCollectionRef = collection(db, 'rooms');
   const roomsSnapshot = await getDocs(roomsCollectionRef);
@@ -65,26 +66,82 @@ export const updateRoom = async (roomId, updatedData) => {
 };
 
 export const addUserToRoom = async (roomId, user) => {
-    console.log("Room ID:", roomId); // Debugging line
-    console.log("User Object:", user); // Debugging line
+  console.log("Room ID:", roomId); // Debugging line
+  console.log("User Object:", user); // Debugging line
 
-    console.log("🧚🏿‍♂️", roomId, user)
+  console.log("🧚🏿‍♂️", roomId, user);
 
-    if (!roomId || !user) {
-        console.error("Invalid room ID or user data.");
-        return;
+  if (!roomId || !user) {
+    console.error("Invalid room ID or user data.");
+    return;
+  }
+
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+    await updateDoc(roomDocRef, {
+      users: arrayUnion({
+        uid: user.uid,
+        name: user.displayName
+      })
+    });
+    console.log('User added to room successfully');
+  } catch (error) {
+    console.error('Error adding user to room: ', error);
+  }
+};
+
+// New function to send messages to a room
+export const sendMessageToRoom = async (roomId, message) => {
+  console.log("Sending message to room:", roomId, message);
+  if (!roomId || !message) {
+    console.error("Invalid room ID or message data.");
+    return;
+  }
+
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+    await updateDoc(roomDocRef, {
+      messages: arrayUnion({
+        content: message.content,
+        sender: message.sender, // user information (uid, username)
+        timestamp: message.timestamp, // new Date()
+      })
+    });
+    console.log('Message sent successfully');
+  } catch (error) {
+    console.error('Error sending message to room: ', error);
+  }
+};
+
+// New function to send messages to a room
+export const addMessage = async (roomId, message) => {
+  console.log("Sending message to room:", roomId, message);
+  if (!roomId || !message) {
+    console.error("Invalid room ID or message data.");
+    return;
+  }
+
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+    await updateDoc(roomDocRef, {
+      messages: arrayUnion({
+        content: message.content,
+        sender: message.sender, // user information (uid, username)
+        timestamp: message.timestamp, // new Date()
+      })
+    });
+    console.log('Message sent successfully');
+  } catch (error) {
+    console.error('Error sending message to room: ', error);
+  }
+};
+
+export const listenForMessages = (roomId, callback) => {
+  const roomDocRef = doc(db, 'rooms', roomId);
+  return onSnapshot(roomDocRef, (doc) => {
+    const data = doc.data();
+    if (data && data.messages) {
+      callback(data.messages);
     }
-
-    try {
-        const roomDocRef = doc(db, "rooms", roomId);
-        await updateDoc(roomDocRef, {
-            users: arrayUnion({
-                uid: user.uid,
-                name: user.displayName
-            })
-        });
-        console.log('User added to room successfully');
-    } catch (error) {
-        console.error('Error adding user to room: ', error);
-    }
+  });
 };
