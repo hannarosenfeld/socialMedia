@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
-// import roomReducer, leaveRoomAction from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { addUserToRoom,fetchRoomByName, removeUserFromRoom } from '../../services/roomService';
+import { addUserToRoom, fetchRoomByName, removeUserFromRoom } from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -53,7 +52,6 @@ const LoadingContainer = styled(Box)({
   height: '100%',
 });
 
-
 export default function Room() {
   const dispatch = useDispatch();
   const { roomName } = useParams();
@@ -73,17 +71,15 @@ export default function Room() {
         setRoom(fetchedRoom);
         roomIdRef.current = fetchedRoom.id; // Store the room ID in the ref
 
-        // Add user to the room after confirming room was fetched
+        // Add user to the room and then fetch updated users
         await addUserToRoom(fetchedRoom.id, sessionUser);
-
-        // Set active users after successfully adding the user
+        // After adding the user, fetch the active users list again
         setActiveUsers(fetchedRoom.users);
 
-        // Set loading to false only after both operations are successful
-        setIsLoading(false);
       } catch (err) {
         console.error("Error fetching room: ", err);
-        setIsLoading(false); // Ensure loading is set to false even in case of error
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -91,20 +87,33 @@ export default function Room() {
 
     // Cleanup function to remove user from the room when the component unmounts
     return () => {
-      // Use the ref to access the room ID
       if (sessionUser?.uid && roomIdRef.current) {
         removeUserFromRoom(roomIdRef.current, sessionUser)
           .then(() => console.log("User removed from room"))
           .catch((err) => {
             console.error("Error removing user from room: ", err);
           });
-      } else {
-        console.warn("No room ID available for cleanup");
       }
     };
   }, [dispatch, roomName, sessionUser]);
 
-  if (loading || !sessionUser || !room) {
+  // Fetch active users when the room data changes
+  useEffect(() => {
+    const fetchActiveUsers = async () => {
+      if (room) {
+        try {
+          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+          setActiveUsers(updatedRoom.users);
+        } catch (err) {
+          console.error("Error fetching active users: ", err);
+        }
+      }
+    };
+
+    fetchActiveUsers();
+  }, [room, roomName]);
+
+  if (loading) {
     return (
       <LoadingContainer>
         <CircularProgress />
