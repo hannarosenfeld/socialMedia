@@ -3,8 +3,6 @@ import { db } from '../firebase/firebase.config';
 
 // Function to remove a user from the room
 export const removeUserFromRoom = async (roomId, user) => {
-  console.log("🤾🏼‍♂️ in remove user from room");
-  console.log("🧘🏾‍♂️", roomId, user);
   if (!roomId || !user) {
     console.error("Invalid room ID or user data.");
     return;

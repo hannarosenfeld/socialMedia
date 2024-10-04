@@ -63,6 +63,7 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
 
+
   useEffect(() => {
     const fetchRoomData = async () => {
       try {
@@ -137,11 +138,20 @@ export default function Room() {
           <MessageList>
             {messages.map((message, index) => (
               <ListItem key={index}>
-                <ListItemText
-                  primary={message?.content}
-                  secondary={`${message?.sender?.username} - ${new Date(message.timestamp).toLocaleString()}`}
-                />
-              </ListItem>
+              <ListItemText
+                primary={message?.content}
+                secondary={
+                  <span>
+                    <span style={{ color: sessionUser.color }}>
+                      {message?.sender?.username}
+                    </span>
+                    {' - '}
+                    {new Date(message.timestamp).toLocaleString()}
+                  </span>
+                }
+              />
+            </ListItem>
+
             ))}
           </MessageList>
           <MessageInputContainer>

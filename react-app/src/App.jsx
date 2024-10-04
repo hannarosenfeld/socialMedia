@@ -8,8 +8,10 @@ import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import Room from './components/Room';
 import ProfilePage from './pages/userProfile.jsx';
+import EditProfile from './pages/editProfile.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, removeUser } from './store/session'; // Import session actions
+import { getUserData } from './services/userService'; // Import the getUserData function
 
 function App() {  
   const dispatch = useDispatch();
@@ -17,10 +19,17 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         console.log("User signed in:", user);
-        dispatch(setUser(user));  // Dispatch the user to Redux
+
+        // Fetch additional user data from Firestore
+        const userData = await getUserData(user.uid); // Use user.uid to fetch additional data
+        if (userData) {
+          dispatch(setUser({ ...user, ...userData })); // Merge Firebase user with additional data
+        } else {
+          dispatch(setUser(user)); // If no additional data, just set the auth user
+        }
       } else {
         console.log("No user is signed in.");
         dispatch(removeUser());   // Dispatch removal of user from Redux when signed out
@@ -49,9 +58,10 @@ function App() {
           </>
         ) : (
           <>
-            <Route path="/" element={<Dashboard sessionUser={sessionUser} />} />    
+            <Route exact path="/" element={<Dashboard sessionUser={sessionUser} />} />    
             <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
-            <Route path="/users/:username" element={<ProfilePage />} /> {/* Updated route */}
+            <Route path="/users/:username" element={<ProfilePage />} /> 
+            <Route path="/settings/profile" element={<EditProfile />} />
           </>
         )}
       </Routes>
