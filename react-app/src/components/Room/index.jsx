@@ -63,6 +63,7 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
 
+  console.log("🤦🏻‍♀️", sessionUser)
 
   useEffect(() => {
     const fetchRoomData = async () => {

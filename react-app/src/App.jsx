@@ -22,9 +22,9 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         console.log("User signed in:", user);
-
         // Fetch additional user data from Firestore
         const userData = await getUserData(user.uid); // Use user.uid to fetch additional data
+        console.log("😤", userData)
         if (userData) {
           dispatch(setUser({ ...user, ...userData })); // Merge Firebase user with additional data
         } else {
