@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button, Modal, Box, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoomThunk, getAllRoomsThunk } from '../../store/room'
-import NavBar from '../NavBar';
+import { addRoomThunk, getAllRoomsThunk } from '../../store/room'; // Import thunks
 import { Link } from "react-router-dom";
-
-
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -16,8 +13,9 @@ const Dashboard = () => {
   const [roomData, setRoomData] = useState({ name: '', description: '' });
 
   useEffect(() => {
+    dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
     setLoading(false);
-  }, [chatRooms])
+  }, [dispatch]);
 
   const handleAddRoom = () => {
     setIsModalOpen(true);
@@ -37,21 +35,11 @@ const Dashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      await dispatch(addRoomThunk(roomData))
-      .then(
-        await dispatch(getAllRoomsThunk())
-      ).then(
-        setIsModalOpen(false).then(
-          setLoading(false)
-        ).then(
-          setRoomData({ name: '', description: '' })
-        )
-      )
-    } catch(error) {
-      console.log("🚨",error)
-    }
+    setLoading(true);
+    await dispatch(addRoomThunk(roomData));
+    setIsModalOpen(false);
+    setLoading(false);
+    setRoomData({ name: '', description: '' });
   };
 
   return (
@@ -59,32 +47,32 @@ const Dashboard = () => {
       {!loading && (
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
-          {Object.values(chatRooms).map(chatroom => (
-    <Link key={chatroom.roomInfo.id} to={`/rooms/${chatroom?.roomInfo.name ? chatroom.roomInfo.name.split(' ').join('-').toLowerCase() : ''}`}>
-        <Card className="room-card" style={{width: "25em"}}>
-            <CardContent style={{display: "flex", gap: "1em"}}>
-                <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
-                    diversity_3
-                </span>
-                <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
-                <div style={{display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center"}}>
-                    <Typography component="h5">
-                        {chatroom.roomInfo.name}
-                    </Typography>
-                    <Typography style={{fontSize: "0.8em"}}>
-                        {chatroom.roomInfo.description}
-                    </Typography>
-                </div>
-                <div style={{display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em"}}>
-                  <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.activeUsers}</span>
-                  <span style={{fontSize: "12px", width: "3em"}}>people chatting</span>
-                </div>
+            {chatRooms.map(chatroom => (
+              <Link key={chatroom.roomInfo.id} to={`/rooms/${chatroom?.roomInfo.name ? chatroom.roomInfo.name.split(' ').join('-').toLowerCase() : ''}`}>
+              {console.log("🤦🏻‍♀️", chatroom.roomInfo.name)}
+                <Card className="room-card" style={{width: "25em"}}>
+                  <CardContent style={{display: "flex", gap: "1em"}}>
+                    <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
+                      diversity_3
+                    </span>
+                    <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
+                      <div style={{display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center"}}>
+                        <Typography component="h5">
+                          {chatroom.roomInfo.name}
+                        </Typography>
+                        {/* <Typography style={{fontSize: "0.8em"}}>
+                          {chatroom.description}
+                        </Typography> */}
+                      </div>
+                      <div style={{display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em"}}>
+                        <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.activeUsers || 0}</span>
+                        <span style={{fontSize: "12px", width: "3em"}}>people chatting</span>
+                      </div>
                     </div>
-            </CardContent>
-        </Card>
-    </Link>
-))}
-
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
             <Button variant="text" color="secondary" onClick={handleAddRoom} style={{ alignSelf: "flex-end", marginTop: "0.5em" }}>
               <span className="material-symbols-outlined">add</span>Add Room
             </Button>

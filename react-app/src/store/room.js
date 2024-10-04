@@ -1,52 +1,31 @@
+import { fetchRooms, addRoom } from '../services/roomService';
+
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
 const ENTER_ROOM = "room/ENTER_ROOM";
 const LEAVE_ROOM = "room/LEAVE_ROOM";
 
-const enterRoomAction = (payload) => ({
-    type: ENTER_ROOM,
-    payload
-});
+// Action Creators
+const enterRoomAction = (payload) => ({ type: ENTER_ROOM, payload });
+const getAllRoomsAction = (rooms) => ({ type: GET_ALL_ROOMS, rooms });
+export const leaveRoomAction = (roomId, userId) => ({ type: LEAVE_ROOM, roomId, userId });
 
-const getAllRoomsAction = (rooms) => ({
-    type: GET_ALL_ROOMS,
-    rooms
-});
-
-export const leaveRoomAction = (roomId, userId) => ({
-    type: LEAVE_ROOM,
-    roomId,
-    userId
-});
-
-
+// Thunks
 export const addRoomThunk = (roomData) => async (dispatch) => {
-    const res = await fetch("/api/rooms/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(roomData)
-    });
-    if (res.ok) {
-        const data = await res.json();
-        dispatch(getAllRoomsAction(data));
-        return data;
-    } else {
-        const err = await res.json();
-        return err;
+    try {
+      const newRoom = await addRoom(roomData);
+      dispatch({ type: ADD_ROOM, room: newRoom });
+    } catch (error) {
+      console.log("Error adding room:", error);
     }
 };
 
 export const getAllRoomsThunk = () => async (dispatch) => {
-    const res = await fetch("/api/rooms");
-    if (res.ok) {
-        const data = await res.json();
-        dispatch(getAllRoomsAction(data));
-        return data;
-    } else {
-        const err = await res.json();
-        return err;
+    try {
+        const rooms = await fetchRooms();
+        dispatch(getAllRoomsAction(rooms));
+    } catch (error) {
+        console.log("Error fetching rooms:", error);
     }
 };
 
@@ -72,6 +51,8 @@ export const enterRoomThunk = (userId, roomName) => async (dispatch) => {
     }
 };
 
+
+// Reducer
 const initialState = {
     allRooms: {},
     currentRoom: {
@@ -85,10 +66,9 @@ const roomReducer = (state = initialState, action) => {
     switch (action.type) {
         case ENTER_ROOM:
             room = action.payload.room;
-            const user = action.payload.user.username; // Get the username
-            const currentUsers = state.currentRoom.users || []; // Ensure users is an array
+            const user = action.payload.user.username;
+            const currentUsers = state.currentRoom.users || [];
             if (currentUsers.includes(user)) {
-                // User is already in the room, return state without modifications
                 return state;
             }
             return {
@@ -103,30 +83,26 @@ const roomReducer = (state = initialState, action) => {
                 currentRoom: {
                     ...state.currentRoom,
                     room: action.payload.room,
-                    users: [...currentUsers, user] // Add the username
+                    users: [...currentUsers, user]
                 }
-            };        
+            };
         case LEAVE_ROOM:
-            console.log("🌰", action)
-            let roomId = action.roomId;
-            let userId = action.userId;
-            room = state.allRooms[roomId];
+            room = state.allRooms[action.roomId];
             if (room) {
-                console.log("⚾️", room.activeUsers)
                 const updatedUsers = room.activeUsers - 1;
                 return {
                     ...state,
                     allRooms: {
                         ...state.allRooms,
-                        [roomId]: {
+                        [action.roomId]: {
                             ...room,
                             activeUsers: updatedUsers
                         }
                     },
-                    currentRoom : {}
+                    currentRoom: {}
                 };
             }
-            return state;            
+            return state;
         case GET_ALL_ROOMS:
             const allRooms = {};
             action.rooms.forEach(room => {
@@ -137,14 +113,14 @@ const roomReducer = (state = initialState, action) => {
             });
             return {
                 ...state,
-                allRooms: allRooms
+                allRooms
             };
         case ADD_ROOM:
             return {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [action.room.roomId]: {
+                    [action.room.id]: {
                         roomInfo: action.room,
                         activeUsers: 0
                     }
