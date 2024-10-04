@@ -33,7 +33,7 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 export const enterRoomThunk = (user, room) => async (dispatch) => {
     try {
       // Update the Firestore room document with the new user
-      await addUserToRoom(room.uid, user); // Pass the whole user object  
+      await addUserToRoom(room.id, user); // Pass the whole user object  
       const entrance = {
         user,
         room,

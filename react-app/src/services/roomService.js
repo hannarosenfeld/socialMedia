@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, addDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase/firebase.config';
 
 export const fetchRoomByName = async (roomName) => {
@@ -43,12 +43,26 @@ export const updateRoom = async (roomId, updatedData) => {
 };
 
 export const addUserToRoom = async (roomId, user) => {
-  try {
-    const roomDocRef = doc(db, 'rooms', roomId); // Assuming roomId is the document ID
-    await updateDoc(roomDocRef, {
-      users: arrayUnion(user), // Add user object to the users array
-    });
-  } catch (error) {
-    console.error("Error adding user to room: ", error);
-  }
+    console.log("Room ID:", roomId); // Debugging line
+    console.log("User Object:", user); // Debugging line
+
+    console.log("🧚🏿‍♂️", roomId, user)
+
+    if (!roomId || !user) {
+        console.error("Invalid room ID or user data.");
+        return;
+    }
+
+    try {
+        const roomDocRef = doc(db, "rooms", roomId);
+        await updateDoc(roomDocRef, {
+            users: arrayUnion({
+                uid: user.uid,
+                name: user.displayName
+            })
+        });
+        console.log('User added to room successfully');
+    } catch (error) {
+        console.error('Error adding user to room: ', error);
+    }
 };
