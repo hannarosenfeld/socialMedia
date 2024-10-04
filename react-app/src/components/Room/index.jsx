@@ -68,41 +68,55 @@ export default function Room() {
   useEffect(() => {
     const fetchRoomData = async () => {
       try {
-        // Fetch the room data
         const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
         setRoom(fetchedRoom);
-        roomIdRef.current = fetchedRoom.id; // Store the room ID in the ref
-
-        // Add user to the room and then fetch updated users
+        roomIdRef.current = fetchedRoom.id;
+  
+        // Add user to the room
         await addUserToRoom(fetchedRoom.id, sessionUser);
-        await setActiveUsers(fetchedRoom.users);
-
+  
+        // Fetch updated users after adding
+        setActiveUsers(fetchedRoom.users);
+  
         // Set up real-time message listener
-        const unsubscribe = listenForMessages(fetchedRoom.id, (newMessages) => {
+        const unsubscribe = listenForMessages(fetchedRoom.id, async (newMessages) => {
           setMessages(newMessages);
+  
+          // Fetch updated users whenever new messages come in
+          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+          setActiveUsers(updatedRoom.users);
         });
-
-        return () => unsubscribe(); // Cleanup listener on unmount
+  
+        return () => {
+          unsubscribe(); // Cleanup listener on unmount
+        };
       } catch (err) {
         console.error("Error fetching room: ", err);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchRoomData();
-
+  
     // Cleanup function to remove user from the room when the component unmounts
     return () => {
       if (sessionUser?.uid && roomIdRef.current) {
         removeUserFromRoom(roomIdRef.current, sessionUser)
-          .then(() => console.log("User removed from room"))
+          .then(async () => {
+            console.log("User removed from room");
+  
+            // Optionally, refetch users after removal
+            const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+            setActiveUsers(updatedRoom.users);
+          })
           .catch((err) => {
             console.error("Error removing user from room: ", err);
           });
       }
     };
   }, [dispatch, roomName, sessionUser]);
+  
 
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
