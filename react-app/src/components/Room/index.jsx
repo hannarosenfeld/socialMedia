@@ -1,12 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import 'tailwindcss/tailwind.css';
-import { enterRoomThunk, leaveRoomAction } from '../../store/room';
+import roomReducer, { enterRoomThunk, leaveRoomAction } from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import io from 'socket.io-client';
+import { fetchRoomByName } from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -65,55 +65,30 @@ export default function Room() {
   const [loading, setIsLoading] = useState(true);
   const users = currentRoom?.users;
 
-  console.log("💖", currentRoom, sessionUser)
-
   useEffect(() => {
-    const entrance = dispatch(enterRoomThunk(sessionUser, currentRoom));
+    const fetchRoomData = async () => {
+      try {
+        // Fetch the room data
+        const room = await fetchRoomByName(roomName.split("-").join(" "));
+        console.log("🔫 Room Data: ", room); // Now this will log the actual room object
 
-    Promise.all([entrance])
-      .then(() => setIsLoading(false))
-      .catch((err) => console.log("🚨", err));
+        // Dispatch the action to enter the room
+        const entrance = dispatch(enterRoomThunk(sessionUser, room));
 
-      if (currentRoom?.room?.uid) {
-        dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.uid));
+        await entrance; // Wait for entrance action to complete
+        setIsLoading(false); // Set loading to false once data is ready
+
+        if (currentRoom?.room?.uid) {
+          dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.uid));
+        }
+      } catch (err) {
+        console.error("Error fetching room: ", err);
+        setIsLoading(false); // Ensure loading state is updated even on error
       }
-      
+    };
+
+    fetchRoomData(); // Call the async function
   }, [dispatch, roomName, sessionUser.id, currentRoom?.room?.id]);
-
-
-  // const socketRef = useRef(null);
-  // useEffect(() => {
-  //   socketRef.current = io('http://localhost:5000');
-
-  //   socketRef.current.on('connect', () => {
-  //     console.log('Connected to websocket server');
-  //     socketRef.current.emit('join_room', { room: roomName });
-  //   });
-
-  //   socketRef.current.on('receive_message', (data) => {
-  //     const messageWithUsername = {
-  //       ...data.message,
-  //       username: data.message.sender.username || 'Unknown User',
-  //     };
-  //     setMessages(prevMessages => [...prevMessages, messageWithUsername]);
-  //   });
-
-  //   return () => {
-  //     socketRef.current.disconnect();
-  //   };
-  // }, [roomName]);
-
-  // const handleSendMessage = () => {
-  //   if (input.trim()) {
-  //     socketRef.current.emit('send_message', {
-  //       roomName,
-  //       content: input,
-  //       senderId: sessionUser.id,
-  //       roomId: currentRoom?.room?.id
-  //     });
-  //     setInput('');
-  //   }
-  // };
 
   if (loading || !sessionUser || !currentRoom) {
     return (
@@ -145,6 +120,7 @@ export default function Room() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message..."
               />
+              {/* Uncomment the button to enable sending messages */}
               {/* <Button variant="contained" color="primary" onClick={handleSendMessage}>
                 Send
               </Button> */}
