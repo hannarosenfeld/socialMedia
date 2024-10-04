@@ -1,5 +1,28 @@
-import { doc, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase.config';
+
+// Function to remove a user from the room
+export const removeUserFromRoom = async (roomId, user) => {
+  console.log("🤾🏼‍♂️ in remove user from room")
+  console.log("🧘🏾‍♂️", roomId, user)
+  if (!roomId || !user) {
+    console.error("Invalid room ID or user data.");
+    return;
+  }
+
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+    await updateDoc(roomDocRef, {
+      users: arrayRemove({
+        uid: user.uid,
+        name: user.displayName
+      })
+    });
+    console.log('User removed from room successfully');
+  } catch (error) {
+    console.error('Error removing user from room: ', error);
+  }
+};
 
 export const fetchRoomByName = async (roomName) => {
   const roomsCollectionRef = collection(db, 'rooms');
@@ -16,7 +39,6 @@ export const fetchRooms = async () => {
   const roomsCollectionRef = collection(db, 'rooms');
   const roomsSnapshot = await getDocs(roomsCollectionRef);
   const roomsList = roomsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  console.log("😎", roomsList)
   return roomsList;
 };
 

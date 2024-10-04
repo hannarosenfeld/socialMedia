@@ -49,7 +49,6 @@ const Dashboard = () => {
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
             {chatRooms.map(chatroom => (
               <Link key={chatroom.roomInfo?.id} to={`/rooms/${chatroom?.roomInfo?.name ? chatroom.roomInfo?.name.split(' ').join('-').toLowerCase() : ''}`}>
-              {console.log("🤦🏻‍♀️", chatroom.roomInfo?.name)}
                 <Card className="room-card" style={{width: "25em"}}>
                   <CardContent style={{display: "flex", gap: "1em"}}>
                     <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
