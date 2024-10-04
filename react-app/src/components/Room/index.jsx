@@ -74,7 +74,7 @@ export default function Room() {
         // Add user to the room and then fetch updated users
         await addUserToRoom(fetchedRoom.id, sessionUser);
         // After adding the user, fetch the active users list again
-        setActiveUsers(fetchedRoom.users);
+        await setActiveUsers(fetchedRoom.users);
 
       } catch (err) {
         console.error("Error fetching room: ", err);
