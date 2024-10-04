@@ -110,12 +110,12 @@ export default function NavBar({ sessionUser }) {  // Accept sessionUser as a pr
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       {/* Show user's display name or email in dropdown */}
                       <div className="block px-4 py-2 text-sm text-gray-700">
-                        {sessionUser.displayName ? sessionUser.displayName : "Guest"}
+                        {sessionUser.username ? sessionUser.username : "Guest"}
                       </div>
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                          href={`/users/${sessionUser.displayName ? sessionUser.displayName : "Guest-" + sessionUser.uid.substring(0, 5)}`}
+                          href={`/users/${sessionUser.username ? sessionUser.username : "Guest-" + sessionUser.uid.substring(0, 5)}`}
                           className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
                             Your Profile

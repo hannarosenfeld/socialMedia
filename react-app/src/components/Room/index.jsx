@@ -3,7 +3,7 @@ import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typo
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { addUserToRoom, fetchRoomByName, removeUserFromRoom, addMessage, listenForMessages } from '../../services/roomService';
+import { listenForUserUpdates, addUserToRoom, fetchRoomByName, removeUserFromRoom, addMessage, listenForMessages } from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -63,60 +63,64 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
 
-  console.log("🤦🏻‍♀️", sessionUser)
+  console.log("🤦🏻‍♀️", activeUsers)
 
   useEffect(() => {
+    const unsubscribeUserListener = listenForUserUpdates(sessionUser.uid, (updatedUser) => {
+        // Update the active users list when the current user updates their profile
+        setActiveUsers((prevUsers) => 
+            prevUsers.map((user) => 
+                user.uid === updatedUser.uid ? updatedUser : user
+            )
+        );
+    });
+
+    // Fetch room data as previously
     const fetchRoomData = async () => {
-      try {
-        const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-        setRoom(fetchedRoom);
-        roomIdRef.current = fetchedRoom.id;
-  
-        // Add user to the room
-        await addUserToRoom(fetchedRoom.id, sessionUser);
-  
-        // Fetch updated users after adding
-        setActiveUsers(fetchedRoom.users);
-  
-        // Set up real-time message listener
-        const unsubscribe = listenForMessages(fetchedRoom.id, async (newMessages) => {
-          setMessages(newMessages);
-  
-          // Fetch updated users whenever new messages come in
-          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-          setActiveUsers(updatedRoom.users);
-        });
-  
-        return () => {
-          unsubscribe(); // Cleanup listener on unmount
-        };
-      } catch (err) {
-        console.error("Error fetching room: ", err);
-      } finally {
-        setIsLoading(false);
-      }
+        try {
+            const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+            setRoom(fetchedRoom);
+            roomIdRef.current = fetchedRoom.id;
+
+            await addUserToRoom(fetchedRoom.id, sessionUser);
+            setActiveUsers(fetchedRoom.users);
+
+            const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
+                setMessages(newMessages);
+
+                const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+                setActiveUsers(updatedRoom.users);
+            });
+
+            return () => {
+                unsubscribeMessages();
+            };
+        } catch (err) {
+            console.error("Error fetching room: ", err);
+        } finally {
+            setIsLoading(false);
+        }
     };
-  
+
     fetchRoomData();
-  
-    // Cleanup function to remove user from the room when the component unmounts
+
     return () => {
-      if (sessionUser?.uid && roomIdRef.current) {
-        removeUserFromRoom(roomIdRef.current, sessionUser)
-          .then(async () => {
-            console.log("User removed from room");
-  
-            // Optionally, refetch users after removal
-            const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-            setActiveUsers(updatedRoom.users);
-          })
-          .catch((err) => {
-            console.error("Error removing user from room: ", err);
-          });
-      }
+        unsubscribeUserListener(); // Cleanup the user listener
+        if (sessionUser?.uid && roomIdRef.current) {
+            removeUserFromRoom(roomIdRef.current, sessionUser)
+                .then(async () => {
+                    console.log("User removed from room");
+
+                    const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+                    setActiveUsers(updatedRoom.users);
+                })
+                .catch((err) => {
+                    console.error("Error removing user from room: ", err);
+                });
+        }
     };
-  }, [dispatch, roomName, sessionUser]);
-  
+}, [dispatch, roomName, sessionUser]);
+
 
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
@@ -124,7 +128,7 @@ export default function Room() {
         content: input,
         sender: {
           uid: sessionUser.uid,
-          username: sessionUser.displayName,
+          username: sessionUser.username,
           color: sessionUser.color
         },
         timestamp: new Date().toISOString(),
@@ -187,7 +191,7 @@ export default function Room() {
           <List>
             {activeUsers?.map((user, index) => (
               <ListItem key={index}>
-                <ListItemText primary={user?.name} />
+                <ListItemText primary={user?.username} />
               </ListItem>
             ))}
           </List>

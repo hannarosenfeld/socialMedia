@@ -62,7 +62,7 @@ const SignUpPage = () => {
   const updateUserProfile = async (user, userName) => {
     try {
       await updateProfile(user, {
-        displayName: userName
+        username: userName
       });
       console.log("Display name set to:", userName);
     } catch (error) {

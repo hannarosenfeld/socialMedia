@@ -10,6 +10,8 @@ const EditProfileForm = () => {
     const [username, setUsername] = useState(sessionUser.username);
     const [color, setColor] = useState('#000000');
 
+    console.log("💖", sessionUser)
+
     useEffect(() => {
         // Load existing user data on component mount
         const loadUserData = async () => {
@@ -48,7 +50,7 @@ const EditProfileForm = () => {
                 }}
             >
                 <Avatar sx={{ bgcolor: deepPurple[500], width: 100, height: 100, fontSize: 50 }}>
-                    {sessionUser.displayName[0]}
+                    {sessionUser.username[0]}
                 </Avatar>
                 <Typography variant="h5">Edit Profile</Typography>
                 <TextField
@@ -58,7 +60,11 @@ const EditProfileForm = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     fullWidth
+                    InputLabelProps={{
+                        shrink: username?.length > 0, // Ensure the label shrinks if there's text
+                    }}
                 />
+
                 <TextField
                     label="Color"
                     variant="outlined"

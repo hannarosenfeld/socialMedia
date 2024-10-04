@@ -14,7 +14,7 @@ export const setUser = (user) => ({
     payload: {
         uid: user.uid, // Store only the UID
         email: user.email, // Store other fields you need
-        displayName: user.username, // Example: Store display name if available
+        username: user.username, // Example: Store display name if available
         color: user.color
         // Add more fields as needed
     },

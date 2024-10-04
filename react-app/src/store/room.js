@@ -62,7 +62,7 @@ const roomReducer = (state = initialState, action) => {
         case ENTER_ROOM:
             console.log("🧏🏿‍♂️", action.payload)
             room = action.payload.room;
-            const user = action.payload.user.displayName;
+            const user = action.payload.user.username;
             const currentUsers = state.currentRoom.users || [];
         
             // If the user is already in the room, don't re-add them
