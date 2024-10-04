@@ -70,7 +70,7 @@ export default function Room() {
       try {
         // Fetch the room data
         const room = await fetchRoomByName(roomName.split("-").join(" "));
-        console.log("🔫 Room Data: ", room); // Now this will log the actual room object
+        console.log("🔫 Room Data: ", room, sessionUser); // Now this will log the actual room object
 
         // Dispatch the action to enter the room
         const entrance = dispatch(enterRoomThunk(sessionUser, room));
