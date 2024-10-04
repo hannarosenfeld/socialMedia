@@ -3,10 +3,11 @@ import NavBar from "../NavBar";
 import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import 'tailwindcss/tailwind.css';
-import roomReducer, { enterRoomThunk, leaveRoomAction } from '../../store/room';
+import leaveRoomAction from '../../store/room';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchRoomByName } from '../../services/roomService';
+import { fetchRooms, addRoom, addUserToRoom } from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -63,20 +64,21 @@ export default function Room() {
   const currentRoom = useSelector(state => state.room.currentRoom);
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
-  const users = currentRoom?.users;
+  const [activeUsers, setActiveUsers] = useState([]); // Initialize to an empty array
 
   useEffect(() => {
     const fetchRoomData = async () => {
       try {
         // Fetch the room data
         const room = await fetchRoomByName(roomName.split("-").join(" "));
-        console.log("🔫 Room Data: ", room, sessionUser); // Now this will log the actual room object
-
+         
         // Dispatch the action to enter the room
-        const entrance = dispatch(enterRoomThunk(sessionUser, room));
-
+        const entrance = await addUserToRoom(room.id, sessionUser)
         await entrance; // Wait for entrance action to complete
+        
+        setActiveUsers(room.users); // Set active users to room.users
         setIsLoading(false); // Set loading to false once data is ready
+        console.log("🔫 Room Data: ", activeUsers); // Log the actual room users
 
         if (currentRoom?.room?.uid) {
           dispatch(leaveRoomAction(currentRoom.room.id, sessionUser.uid));
@@ -129,9 +131,9 @@ export default function Room() {
           <UsersSection>
             <Typography variant="h6">Users</Typography>
             <List>
-              {users.map((user, index) => (
+              {activeUsers?.map((user, index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={user} />
+                  <ListItemText primary={user?.name} /> {/* Assuming user has a username property */}
                 </ListItem>
               ))}
             </List>

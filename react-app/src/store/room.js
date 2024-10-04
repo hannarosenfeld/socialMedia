@@ -7,7 +7,7 @@ const ENTER_ROOM = "room/ENTER_ROOM";
 const LEAVE_ROOM = "room/LEAVE_ROOM";
 
 // Action Creators
-const enterRoomAction = (payload) => ({ type: ENTER_ROOM, payload });
+// const enterRoomAction = (payload) => ({ type: ENTER_ROOM, payload });
 const getAllRoomsAction = (rooms) => ({ type: GET_ALL_ROOMS, rooms });
 export const leaveRoomAction = (roomId, userId) => ({ type: LEAVE_ROOM, roomId, userId });
 
@@ -30,19 +30,19 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-export const enterRoomThunk = (user, room) => async (dispatch) => {
-    try {
-      // Update the Firestore room document with the new user
-      await addUserToRoom(room.id, user); // Pass the whole user object  
-      const entrance = {
-        user,
-        room,
-      };
-      dispatch(enterRoomAction(entrance));
-    } catch (error) {
-      console.error("Error entering room:", error);
-    }
-  };
+// export const enterRoomThunk = (user, room) => async (dispatch) => {
+//     try {
+//       // Update the Firestore room document with the new user
+//       await addUserToRoom(room.id, user); // Pass the whole user object  
+//       const entrance = {
+//         user,
+//         room,
+//       };
+//       dispatch(enterRoomAction(entrance));
+//     } catch (error) {
+//       console.error("Error entering room:", error);
+//     }
+//   };
   
 
 
