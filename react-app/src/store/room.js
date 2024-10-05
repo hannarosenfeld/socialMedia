@@ -1,4 +1,5 @@
-import { fetchRooms } from "../services/roomService";
+import { fetchRooms, addRoom, addUserToRoom, removeUserFromRoom } from "../services/roomService.js";
+
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
 const ENTER_ROOM = "room/ENTER_ROOM";
@@ -37,11 +38,12 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 };
 
 // When a user enters a room, add them to the active user list
-export const enterRoomThunk = (user, roomId) => async (dispatch) => {
+export const enterRoomThunk = (user, room) => async (dispatch) => {
+    console.log("🥨", user, room)
     try {
-        await addUserToRoom(roomId, user);
+        await addUserToRoom(room, user);
         const roomData = {
-            roomId,
+            room,
             user,
         };
         dispatch({
@@ -77,6 +79,7 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
+            console.log("🔥", action.payload)
             room = state.allRooms[action.payload.roomId];
             const newUser = action.payload.user.username;
             const currentUsers = state.currentRoom.users || [];
@@ -90,7 +93,7 @@ const roomReducer = (state = initialState, action) => {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [action.payload.roomId]: {
+                    [action.payload.room.id]: {
                         ...room,
                         activeUsers: (room?.activeUsers || 0) + 1,
                     },

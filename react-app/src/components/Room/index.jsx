@@ -22,8 +22,8 @@ import {
   addMessage,
   listenForMessages,
 } from '../../services/roomService';
+import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
 
-// Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
@@ -98,6 +98,7 @@ export default function Room() {
         roomIdRef.current = fetchedRoom.id;
 
         await addUserToRoom(fetchedRoom.id, sessionUser);
+        dispatch(enterRoomThunk(sessionUser, fetchedRoom)); // Add user to Redux
         setActiveUsers(fetchedRoom.users);
 
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
@@ -125,6 +126,7 @@ export default function Room() {
         removeUserFromRoom(roomIdRef.current, sessionUser)
           .then(async () => {
             console.log('User removed from room');
+            dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid })); // Remove user from Redux
 
             const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
             setActiveUsers(updatedRoom.users);
