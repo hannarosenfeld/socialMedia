@@ -55,7 +55,7 @@ const EditProfileForm = () => {
             fontSize: 50,
           }}
         >
-          {username[0].toUpperCase()}
+          {sessionUser.username[0].toUpperCase()}
         </Avatar>
 
         {/* Edit Profile Title */}
