@@ -136,6 +136,7 @@ const roomReducer = (state = initialState, action) => {
             action.rooms.forEach((room) => {
                 allRooms[room.id] = room;
             });
+            console.log("👚", allRooms)
             return {
                 ...state,
                 allRooms,
