@@ -37,12 +37,13 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
+export const enterRoomThunk = (roomId, user) => async (dispatch) => {
+    console.log("💘 in thunk", roomId, user)
     try {
-        await addUserToRoom(roomId, userId);
+        await addUserToRoom(roomId, user);
         const roomData = {
             roomId,
-            userId
+            user
         };
         dispatch({
             type: ENTER_ROOM,
@@ -53,8 +54,7 @@ export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
     }
 };
 
-export const leaveRoomThunk = ({roomId, userId}) => async (dispatch) => {
-    console.log("😤 in leave room", roomId, userId)
+export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
     try {
         await removeUserFromRoom(roomId, userId);
         dispatch(leaveRoomAction(roomId, userId));
@@ -66,7 +66,7 @@ export const leaveRoomThunk = ({roomId, userId}) => async (dispatch) => {
 // Initial State
 const initialState = {
     allRooms: {},
-    currentRoom: {},
+    currentRoom: null,
 };
 
 // Reducer
@@ -74,15 +74,23 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            
-            room = state.allRooms[action.payload.roomId];
-            const newUser = action.payload.userId;
-            const currentUsers = state.currentRoom?.users || [];
+            console.log("❤️‍🔥 we are in the reducer", action.payload);
 
-            // Check if user is already in the room
-            if (currentUsers.includes(newUser)) {
-                return state;
+            // Get the current room based on the room ID from the action payload
+            room = state.allRooms[action.payload.roomId];
+            const newUser = action.payload.user;
+            const currentUsers = state.currentRoom?.users || {};
+
+            // Check if the new user ID exists in the currentUsers object
+            if (newUser && newUser.uid in currentUsers) {
+                return state; // User already in room, return current state
             }
+
+            // Ensure users object exists
+            const updatedUsers = {
+                ...room?.users || {}, // Spread the existing users or an empty object
+                [newUser.uid]: newUser
+            };
 
             return {
                 ...state,
@@ -90,30 +98,35 @@ const roomReducer = (state = initialState, action) => {
                     ...state.allRooms,
                     [action.payload.roomId]: {
                         ...room,
+                        users: updatedUsers,
                     },
                 },
-                currentRoom: state.allRooms[action.payload.roomId]
+                currentRoom: {
+                    ...room, 
+                    users: updatedUsers,
+                }
             };
 
         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
-                const updatedRoomUsers = state.currentRoom?.users?.filter(
-                    (user) => user.uid !== action.userId
-                );
+                // Clone the current room's users object
+                const currentUsers = { ...room.users };
 
+                // Remove the user from the users object
+                delete currentUsers[action.userId];
+
+                // Handle if current room was left by all users
                 return {
                     ...state,
                     allRooms: {
                         ...state.allRooms,
                         [action.roomId]: {
                             ...room,
+                            users: currentUsers
                         },
                     },
-                    currentRoom: {
-                        room: {},
-                        users: updatedRoomUsers,
-                    },
+                    currentRoom: state.currentRoom?.id === action.roomId ? null : state.currentRoom,
                 };
             }
             return state;
@@ -121,9 +134,7 @@ const roomReducer = (state = initialState, action) => {
         case GET_ALL_ROOMS:
             const allRooms = {};
             action.rooms.forEach((room) => {
-                allRooms[room.id] = {
-                    roomInfo: room,
-                };
+                allRooms[room.id] = room;
             });
             return {
                 ...state,
@@ -135,9 +146,7 @@ const roomReducer = (state = initialState, action) => {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [action.room.id]: {
-                        roomInfo: action.room,
-                    },
+                    [action.room.id]: action.room,
                 },
             };
 

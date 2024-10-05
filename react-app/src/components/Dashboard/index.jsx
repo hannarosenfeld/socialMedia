@@ -51,7 +51,7 @@ const Dashboard = () => {
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em" }}>
             {chatRooms.map(chatroom => (
-              <Link key={chatroom.roomInfo?.id} to={`/rooms/${chatroom?.roomInfo?.name ? chatroom.roomInfo?.name.split(' ').join('-').toLowerCase() : ''}`}>
+              <Link key={chatroom.id} to={`/rooms/${chatroom?.name ? chatroom.name.split(' ').join('-').toLowerCase() : ''}`}>
                 <Card className="room-card" style={{ width: "25em" }}>
                   <CardContent style={{ display: "flex", gap: "1em" }}>
                     <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>
@@ -60,11 +60,11 @@ const Dashboard = () => {
                     <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                       <div style={{ display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center" }}>
                         <Typography component="h5">
-                          {chatroom.roomInfo?.name}
+                          {chatroom.name}
                         </Typography>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em" }}>
-                        <span style={{ alignSelf: 'center', fontSize: "28px" }}>{chatroom.roomInfo.users?.length || 0}</span>
+                        {/* <span style={{ alignSelf: 'center', fontSize: "28px" }}>{Object.values(chatroom.users.length) || 0}</span> */}
                         <span style={{ fontSize: "12px", width: "3em" }}>people chatting</span>
                       </div>
                     </div>

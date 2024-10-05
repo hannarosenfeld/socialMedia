@@ -16,7 +16,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
   listenForUserUpdates,
-  addUserToRoom,
   fetchRoomByName,
   removeUserFromRoom,
   addMessage,
@@ -81,7 +80,9 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
   const messagesEndRef = useRef(null); // Ref for the last message
+  const currentRoom = useSelector((state) => state.room.currentRoom);
 
+  // Effect to fetch room data and set listeners
   useEffect(() => {
     const unsubscribeUserListener = listenForUserUpdates(sessionUser.uid, (updatedUser) => {
       setActiveUsers((prevUsers) =>
@@ -96,44 +97,34 @@ export default function Room() {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         setRoom(fetchedRoom);
         roomIdRef.current = fetchedRoom.id;
-        
-        const userExists = fetchedRoom.users.some(user => user.uid === sessionUser.uid);
-         
-        if (!userExists) {
-          dispatch(enterRoomThunk(fetchedRoom.id, sessionUser.uid));
-        }
 
-        setActiveUsers(fetchedRoom.users);
+        // Enter room via thunk
+        await dispatch(enterRoomThunk(fetchedRoom.id, sessionUser));
 
-        const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
+        // Listen for new messages
+        const unsubscribeMessages = listenForMessages(fetchedRoom.id, (newMessages) => {
           setMessages(newMessages);
-
-          const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
-          setActiveUsers(updatedRoom.users);
         });
 
         return () => {
-          unsubscribeMessages();
+          unsubscribeMessages(); // Clean up message listener on unmount
         };
       } catch (err) {
         console.error('Error fetching room: ', err);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Stop loading once room data is fetched
       }
     };
 
     fetchRoomData();
 
+    // Cleanup on component unmount
     return () => {
-      unsubscribeUserListener();
+      unsubscribeUserListener(); // Clean up user listener
       if (sessionUser?.uid && roomIdRef.current) {
         removeUserFromRoom(roomIdRef.current, sessionUser)
-          .then(async () => {
-            console.log('User removed from room');
+          .then(() => {
             dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
-
-            const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
-            setActiveUsers(updatedRoom.users);
           })
           .catch((err) => {
             console.error('Error removing user from room: ', err);
@@ -141,6 +132,14 @@ export default function Room() {
       }
     };
   }, [dispatch, roomName, sessionUser]);
+
+  // Effect to set active users when `currentRoom` changes
+  useEffect(() => {
+    if (currentRoom && Object.values(currentRoom.users).length) {
+      const userArray = Object.values(currentRoom?.users);
+      setActiveUsers(userArray);
+    }
+  }, [currentRoom]);
 
   // Effect to scroll to the bottom when messages are updated
   useEffect(() => {
@@ -180,57 +179,59 @@ export default function Room() {
 
   return (
     <Container maxWidth={false} disableGutters>
-      <ChatContainer>
-        <MessagesSection>
-          <MessageList>
-            {messages?.map((msg, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={
-                    <Typography style={{ color: msg.sender?.color }}>
-                      {msg.sender?.username}
-                    </Typography>
+      {activeUsers.length > 0 && (
+        <ChatContainer>
+          <MessagesSection>
+            <MessageList>
+              {messages?.map((msg, index) => (
+                <ListItem key={index}>
+                  <ListItemText
+                    primary={
+                      <Typography style={{ color: msg.sender?.color }}>
+                        {msg.sender?.username}
+                      </Typography>
+                    }
+                    secondary={msg.content}
+                  />
+                </ListItem>
+              ))}
+              <div ref={messagesEndRef} />
+            </MessageList>
+
+            <MessageInputContainer>
+              <MessageInput
+                label="Type your message..."
+                variant="outlined"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSendMessage();
                   }
-                  secondary={msg.content}
-                />
-              </ListItem>
-            ))}
-            <div ref={messagesEndRef} />
-          </MessageList>
+                }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSendMessage}
+              >
+                Send
+              </Button>
+            </MessageInputContainer>
+          </MessagesSection>
 
-          <MessageInputContainer>
-            <MessageInput
-              label="Type your message..."
-              variant="outlined"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage();
-                }
-              }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSendMessage}
-            >
-              Send
-            </Button>
-          </MessageInputContainer>
-        </MessagesSection>
-
-        <UsersSection>
-          <Typography variant="h6">Active Users</Typography>
-          <List>
-            {activeUsers.map((user, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={user.username} />
-              </ListItem>
-            ))}
-          </List>
-        </UsersSection>
-      </ChatContainer>
+          <UsersSection>
+            <Typography variant="h6">Active Users</Typography>
+            <List>
+              {activeUsers?.map((user, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={user.username || 'Loading...'} />
+                </ListItem>
+              ))}
+            </List>
+          </UsersSection>
+        </ChatContainer>
+      )}
     </Container>
   );
 }

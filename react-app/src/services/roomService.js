@@ -15,7 +15,6 @@ export const listenForUserUpdates = (userId, callback) => {
  
 
 export const removeUserFromRoom = async (roomId, userId) => {
-    console.log("💖 in firebase fx");
     if (!roomId || !userId) {  // Change 'user' to 'userId'
         console.error("Invalid room ID or user data.");
         return;
@@ -73,25 +72,26 @@ export const updateRoom = async (roomId, updatedData) => {
   }
 };
 
-export const addUserToRoom = async (roomId, userId) => {
-    console.log("Room ID:", roomId);
-    console.log("User ID:", userId);
 
-    if (!roomId || !userId) {
-        console.error("Invalid room ID or user data.");
+
+export const addUserToRoom = async (roomId, user) => {
+    if (!roomId || !user) {
+        console.error("Invalid room ID or user.");
         return;
     }
 
     try {
         const roomDocRef = doc(db, "rooms", roomId);
+        // Update the users field to store the user ID with its data
         await updateDoc(roomDocRef, {
-            users: arrayUnion(userId)
+            [`users.${user.uid}`]: user
         });
         console.log('User added to room successfully');
     } catch (error) {
         console.error('Error adding user to room: ', error);
     }
 };
+
 
 
 export const sendMessageToRoom = async (roomId, message) => {

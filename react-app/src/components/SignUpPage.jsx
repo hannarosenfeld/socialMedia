@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/firebase.config.js"; // Ensure this is correctly importing your Firebase config
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile } from "firebase/auth"; // Import the necessary Firebase functions
 import { doc, setDoc } from "firebase/firestore"; // Import Firestore functions
