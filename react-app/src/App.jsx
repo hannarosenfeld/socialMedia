@@ -62,7 +62,7 @@ function App() {
             <Route exact path="/" element={<Dashboard sessionUser={sessionUser} />} />    
             <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
             <Route path="/users/:username" element={<ProfilePage sessionUser={sessionUser}/>} /> 
-            <Route path="/settings/profile" element={<EditProfile />} />
+            <Route path="/settings/profile" element={<EditProfile sessionUser={sessionUser}/>} />
           </>
         )}
       </Routes>

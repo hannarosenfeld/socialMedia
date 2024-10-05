@@ -1,51 +1,46 @@
-export const GET_USER = "user/GET_USER"
-const GET_USERS = "user/GET_USERS"
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "../firebase/firebase.config";
 
-const getUserAction = (user) => ({
-    type: GET_USER,
-    user
-})
+const SET_USER = "session/SET_USER";
+const REMOVE_USER = "session/REMOVE_USER";
 
-const getUsersAction = (users) => ({
-    type: GET_USERS,
-    users
-})
+// Action creators
+export const setUser = (user) => ({
+  type: SET_USER,
+  payload: user,
+});
 
+export const removeUser = () => ({
+  type: REMOVE_USER,
+});
 
-export const getUsersThunk = () => async (dispatch) => {
-    const res = await fetch(`/api/users/`)
-    if (res.ok) {
-        const data = await res.json()
-        await dispatch(getUsersAction(data))
-        return data
-    } else {
-        const err = await res.json()
-        return err
-    }
+// Thunk to update user info in Firebase and state
+export const editUserThunk = (userId, updatedData) => async (dispatch) => {
+  try {
+    // Update user data in Firestore
+    await setDoc(doc(db, "users", userId), updatedData, { merge: true });
+    console.log("User data saved successfully!");
+
+    // Dispatch Redux action to update state
+    dispatch(setUser(updatedData));
+  } catch (error) {
+    console.error("Error updating user data:", error);
+  }
+};
+
+// Initial state
+const initialState = {
+  user: null,
+};
+
+// Reducer
+export default function sessionReducer(state = initialState, action) {
+  switch (action.type) {
+    case SET_USER:
+      return { ...state, user: action.payload };
+    case REMOVE_USER:
+      return { ...state, user: null };
+    default:
+      return state;
+  }
 }
-
-export const getUserThunk = (userId) => async (dispatch) => {
-    const res = await fetch(`/api/users/${userId}`); 
-    if (res.ok) {
-        const data = await res.json();
-        dispatch(getUserAction(data));
-        return data;
-    } else {
-        const err = await res.json();
-        return err;
-    }
-}
-
-
-const initialState = {};
-
-const userReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case GET_USERS:
-        case GET_USER:
-        default:
-            return state;
-    }
-}
-
-export default userReducer;

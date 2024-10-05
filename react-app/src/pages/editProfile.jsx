@@ -1,85 +1,97 @@
 import { useState, useEffect } from 'react';
 import { Avatar, TextField, Button, Typography, Box } from '@mui/material';
-import { useSelector } from 'react-redux';
 import { deepPurple } from '@mui/material/colors';
-import { saveUserData, getUserData } from '../services/userService.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { editUserThunk } from '../store/user.js'; 
 
 const EditProfileForm = () => {
-    const sessionUser = useSelector((state) => state.session.user);
-    const userId = sessionUser.uid; // Assuming the user ID is stored in the session user
-    const [username, setUsername] = useState(sessionUser.username);
-    const [color, setColor] = useState('#000000');
+  const dispatch = useDispatch();
+  
+  // Fetch sessionUser from the Redux store
+  const sessionUser = useSelector((state) => state.session.user);
 
-    console.log("💖", sessionUser)
+  // If sessionUser is not available, return early
+  if (!sessionUser) {
+    return <Typography variant="h6">Loading user data...</Typography>;
+  }
 
-    useEffect(() => {
-        // Load existing user data on component mount
-        const loadUserData = async () => {
-            const userData = await getUserData(userId);
-            if (userData) {
-                setUsername(userData.username);
-                setColor(userData.color || '#000000'); // Default to black if color is not set
-            }
-        };
-        
-        loadUserData();
-    }, [userId]);
+  // Extract user data from sessionUser
+  const userId = sessionUser.uid;
+  const [username, setUsername] = useState(sessionUser.username || '');
+  const [color, setColor] = useState(sessionUser.color || '#000000');
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        // Prepare user data
-        const userData = { username, color };
+  // Handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-        // Save the user data to Firebase
-        await saveUserData(userId, userData);
-        // Optionally, reset the form or provide feedback to the user
-        console.log('Changes saved:', userData);
-    };
+    // Prepare updated user data
+    const updatedData = { username, color };
 
-    return (
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 2,
-                    marginTop: 4,
-                }}
-            >
-                <Avatar sx={{ bgcolor: deepPurple[500], width: 100, height: 100, fontSize: 50 }}>
-                    {sessionUser.username[0]}
-                </Avatar>
-                <Typography variant="h5">Edit Profile</Typography>
-                <TextField
-                    label="Username"
-                    variant="outlined"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    fullWidth
-                    InputLabelProps={{
-                        shrink: username?.length > 0, // Ensure the label shrinks if there's text
-                    }}
-                />
+    // Dispatch the editUserThunk to update Firebase and session state
+    dispatch(editUserThunk(userId, updatedData));
 
-                <TextField
-                    label="Color"
-                    variant="outlined"
-                    type="color"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    required
-                    fullWidth
-                />
-                <Button variant="contained" color="primary" type="submit">
-                    Save Changes
-                </Button>
-            </Box>
-        </div>
-    );
+    console.log('Changes saved:', updatedData);
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2,
+          marginTop: 4,
+        }}
+      >
+        {/* Display user's avatar */}
+        <Avatar
+          sx={{
+            bgcolor: deepPurple[500],
+            width: 100,
+            height: 100,
+            fontSize: 50,
+          }}
+        >
+          {username[0].toUpperCase()}
+        </Avatar>
+
+        {/* Edit Profile Title */}
+        <Typography variant="h5">Edit Profile</Typography>
+
+        {/* Username field */}
+        <TextField
+          label="Username"
+          variant="outlined"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          fullWidth
+          InputLabelProps={{
+            shrink: !!username, // Ensure label shrinks if there's text
+          }}
+        />
+
+        {/* Color picker */}
+        <TextField
+          label="Color"
+          variant="outlined"
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          required
+          fullWidth
+        />
+
+        {/* Submit button */}
+        <Button variant="contained" color="primary" type="submit">
+          Save Changes
+        </Button>
+      </Box>
+    </div>
+  );
 };
 
 export default EditProfileForm;
