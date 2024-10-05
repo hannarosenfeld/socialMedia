@@ -64,7 +64,7 @@ const Dashboard = () => {
                         </Typography> */}
                       </div>
                       <div style={{display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em"}}>
-                        <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.activeUsers || 0}</span>
+                        <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.roomInfo.users?.length || 0}</span>
                         <span style={{fontSize: "12px", width: "3em"}}>people chatting</span>
                       </div>
                     </div>
