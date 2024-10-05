@@ -18,14 +18,15 @@ function App() {
   const sessionUser = useSelector((state) => state.session.user); // Get sessionUser from Redux store
   const [isLoaded, setIsLoaded] = useState(false);
 
+  console.log("🥰 sessionUser in App.jsx: ", sessionUser)
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         console.log("User signed in:", user);
         // Fetch additional user data from Firestore
         const userData = await getUserData(user.uid); // Use user.uid to fetch additional data
-        console.log("😤", userData)
-        if (userData) {
+          if (userData) {
           dispatch(setUser({ ...user, ...userData })); // Merge Firebase user with additional data
         } else {
           dispatch(setUser(user)); // If no additional data, just set the auth user
@@ -60,7 +61,7 @@ function App() {
           <>
             <Route exact path="/" element={<Dashboard sessionUser={sessionUser} />} />    
             <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
-            <Route path="/users/:username" element={<ProfilePage />} /> 
+            <Route path="/users/:username" element={<ProfilePage sessionUser={sessionUser}/>} /> 
             <Route path="/settings/profile" element={<EditProfile />} />
           </>
         )}
