@@ -43,8 +43,8 @@ export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
     try {
         await addUserToRoom(roomId, userId);
         const roomData = {
-            roomId: room.id,
-            userId: user.uid,
+            roomId,
+            userId
         };
         dispatch({
             type: ENTER_ROOM,
@@ -95,10 +95,7 @@ const roomReducer = (state = initialState, action) => {
                         ...room,
                     },
                 },
-                currentRoom: {
-                    room: state.allRooms[action.payload.roomId],
-                    users: [...currentUsers, newUser],
-                },
+                currentRoom: state.allRooms[action.payload.roomId]
             };
 
         case LEAVE_ROOM:
