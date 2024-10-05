@@ -182,22 +182,26 @@ export default function Room() {
       {activeUsers.length > 0 && (
         <ChatContainer>
           <MessagesSection>
-            <MessageList>
-              {messages?.map((msg, index) => (
-                <ListItem key={index}>
-                  <ListItemText
-                    primary={
-                      <Typography style={{ color: msg.sender?.color }}>
-                        {msg.sender?.username}
-                      </Typography>
-                    }
-                    secondary={msg.content}
-                  />
-                </ListItem>
-              ))}
-              <div ref={messagesEndRef} />
-            </MessageList>
-
+          <MessageList>
+            {messages.map((message, index) => (
+              <ListItem key={index}>
+                <ListItemText
+                  primary={message?.content}
+                  secondary={
+                    <span>
+                      <span style={{ color: message?.sender?.color || "black" }}>
+                        {message?.sender?.username}
+                      </span>
+                      {' - '}
+                      {new Date(message.timestamp).toLocaleString()}
+                    </span>
+                  }
+                />
+              </ListItem>
+            ))}
+            {/* Dummy div to track the end of messages */}
+            <div ref={messagesEndRef} />
+          </MessageList>
             <MessageInputContainer>
               <MessageInput
                 label="Type your message..."

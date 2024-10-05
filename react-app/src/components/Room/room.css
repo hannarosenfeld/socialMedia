@@ -33,7 +33,7 @@
     flex: 1;
     border-left: 1px solid #ccc;
     display: flex;
-    flexDirection: column;
+    flex-direction: column;
     padding: 16px; /* Using theme.spacing alternative */
   }
   
