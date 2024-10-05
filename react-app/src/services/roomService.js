@@ -76,30 +76,26 @@ export const updateRoom = async (roomId, updatedData) => {
   }
 };
 
-export const addUserToRoom = async (roomId, user) => {
-  console.log("Room ID:", roomId); // Debugging line
-  console.log("User Object:", user); // Debugging line
+export const addUserToRoom = async (roomId, userId) => {
+    console.log("Room ID:", roomId);
+    console.log("User ID:", userId);
 
-  console.log("🧚🏿‍♂️", roomId, user);
+    if (!roomId || !userId) {
+        console.error("Invalid room ID or user data.");
+        return;
+    }
 
-  if (!roomId || !user) {
-    console.error("Invalid room ID or user data.");
-    return;
-  }
-
-  try {
-    const roomDocRef = doc(db, "rooms", roomId);
-    await updateDoc(roomDocRef, {
-      users: arrayUnion({
-        uid: user.uid,
-        username: user.username
-      })
-    });
-    console.log('User added to room successfully');
-  } catch (error) {
-    console.error('Error adding user to room: ', error);
-  }
+    try {
+        const roomDocRef = doc(db, "rooms", roomId);
+        await updateDoc(roomDocRef, {
+            users: arrayUnion(userId)
+        });
+        console.log('User added to room successfully');
+    } catch (error) {
+        console.error('Error adding user to room: ', error);
+    }
 };
+
 
 export const sendMessageToRoom = async (roomId, message) => {
   console.log("Sending message to room:", roomId, message);
@@ -119,8 +115,6 @@ export const sendMessageToRoom = async (roomId, message) => {
     },
     timestamp: message.timestamp
   };
-
-  console.log("🍉", sanitizedMessage)
 
   try {
     const roomDocRef = doc(db, "rooms", roomId);

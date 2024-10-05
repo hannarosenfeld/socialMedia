@@ -31,6 +31,7 @@ export const addRoomThunk = (roomData) => async (dispatch) => {
 export const getAllRoomsThunk = () => async (dispatch) => {
     try {
         const rooms = await fetchRooms();
+        console.log("😍", rooms)
         dispatch(getAllRoomsAction(rooms));
     } catch (error) {
         console.log("Error fetching rooms:", error);
@@ -38,13 +39,12 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 };
 
 // When a user enters a room, add them to the active user list
-export const enterRoomThunk = (user, room) => async (dispatch) => {
-    console.log("🥨", user, room)
+export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
     try {
-        await addUserToRoom(room, user);
+        await addUserToRoom(roomId, userId);
         const roomData = {
-            room,
-            user,
+            roomId: room.id,
+            userId: user.uid,
         };
         dispatch({
             type: ENTER_ROOM,
@@ -67,11 +67,8 @@ export const leaveRoomThunk = (roomId, user) => async (dispatch) => {
 
 // Initial State
 const initialState = {
-    allRooms: {}, // All rooms with their details
-    currentRoom: {
-        room: {},
-        users: [], // Active users in the current room
-    },
+    allRooms: {},
+    currentRoom: {},
 };
 
 // Reducer
@@ -79,9 +76,10 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            console.log("🔥", action.payload)
+            
             room = state.allRooms[action.payload.roomId];
-            const newUser = action.payload.user.username;
+            console.log("🔥", room)
+            const newUser = action.payload.userId;
             const currentUsers = state.currentRoom.users || [];
 
             // Check if user is already in the room
@@ -93,9 +91,8 @@ const roomReducer = (state = initialState, action) => {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [action.payload.room.id]: {
+                    [action.payload.roomId]: {
                         ...room,
-                        activeUsers: (room?.activeUsers || 0) + 1,
                     },
                 },
                 currentRoom: {
@@ -107,7 +104,6 @@ const roomReducer = (state = initialState, action) => {
         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
-                const updatedUsers = room.activeUsers - 1;
                 const updatedRoomUsers = state.currentRoom.users.filter(
                     (user) => user.uid !== action.userId
                 );
@@ -118,7 +114,6 @@ const roomReducer = (state = initialState, action) => {
                         ...state.allRooms,
                         [action.roomId]: {
                             ...room,
-                            activeUsers: updatedUsers,
                         },
                     },
                     currentRoom: {
@@ -134,7 +129,6 @@ const roomReducer = (state = initialState, action) => {
             action.rooms.forEach((room) => {
                 allRooms[room.id] = {
                     roomInfo: room,
-                    activeUsers: room.activeUsers || 0,
                 };
             });
             return {
@@ -149,7 +143,6 @@ const roomReducer = (state = initialState, action) => {
                     ...state.allRooms,
                     [action.room.id]: {
                         roomInfo: action.room,
-                        activeUsers: 0,
                     },
                 },
             };

@@ -12,18 +12,23 @@ import EditProfile from './pages/editProfile.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, removeUser } from './store/session'; // Import session actions
 import { getUserData } from './services/userService'; // Import the getUserData function
+import { addRoomThunk, getAllRoomsThunk } from './store/room.js'; // Import thunks
 
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user); // Get sessionUser from Redux store
   const [isLoaded, setIsLoaded] = useState(false);
-
-  console.log("🥰 sessionUser in App.jsx: ", sessionUser)
+  const chatRoomsObj = useSelector((state) => state.room.allRooms);
+  useEffect(() => {
+    const fetchRooms = async () => {
+      await dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
+     };
+    fetchRooms();
+  }, [dispatch]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log("User signed in:", user);
         // Fetch additional user data from Firestore
         const userData = await getUserData(user.uid); // Use user.uid to fetch additional data
           if (userData) {

@@ -96,9 +96,13 @@ export default function Room() {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         setRoom(fetchedRoom);
         roomIdRef.current = fetchedRoom.id;
+        
+        const userExists = fetchedRoom.users.some(user => user.uid === sessionUser.uid);
+         
+        if (!userExists) {
+          dispatch(enterRoomThunk(fetchedRoom.id, sessionUser.uid));
+        }
 
-        await addUserToRoom(fetchedRoom.id, sessionUser);
-        dispatch(enterRoomThunk(sessionUser, fetchedRoom)); // Add user to Redux
         setActiveUsers(fetchedRoom.users);
 
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
