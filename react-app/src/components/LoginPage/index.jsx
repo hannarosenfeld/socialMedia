@@ -2,6 +2,7 @@ import { useState } from "react";
 import { auth } from "../../firebase/firebase.config.js"; // Import auth from your Firebase configuration
 import { signInWithEmailAndPassword } from "firebase/auth"; // Import the function to sign in a user
 import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -71,6 +72,13 @@ const Login = () => {
         onClose={() => setSuccessMessage(null)}
         message={successMessage}
       />
+
+      {/* Add a link to the sign-up page */}
+      <Box mt={2}>
+        <Typography variant="body2">
+          Don't have an account? <Link to="/signup">Sign up here</Link>
+        </Typography>
+      </Box>
     </Box>
   );
 };

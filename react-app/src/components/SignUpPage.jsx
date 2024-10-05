@@ -3,8 +3,10 @@ import { auth, db } from "../firebase/firebase.config.js"; // Ensure this is cor
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile } from "firebase/auth"; // Import the necessary Firebase functions
 import { doc, setDoc } from "firebase/firestore"; // Import Firestore functions
 import { Button, TextField, Typography, Box, Snackbar } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
@@ -29,8 +31,13 @@ const SignUpPage = () => {
       await updateUserProfile(userCredential.user, userName); // Set the displayName in Firebase Auth
 
       setSuccessMessage("User registered successfully!");
+
+      // Now navigate only after everything completes
+      navigate("/");  // Ensure this is the correct route
+
     } catch (err) {
       setError(err.message);
+      console.error("Error during signup process:", err);  // Log the error for debugging
     } finally {
       setLoading(false);
     }
@@ -41,6 +48,7 @@ const SignUpPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return userCredential;
     } catch (error) {
+      console.error("Error during createUserWithEmailAndPassword:", error);
       throw error;
     }
   };
@@ -53,8 +61,8 @@ const SignUpPage = () => {
         email: email,
       });
     } catch (error) {
-      console.error("Error saving username:", error);
-      throw error; // Handle the error accordingly
+      console.error("Error saving username to Firestore:", error);
+      throw error;
     }
   };
 
@@ -62,7 +70,7 @@ const SignUpPage = () => {
   const updateUserProfile = async (user, userName) => {
     try {
       await updateProfile(user, {
-        username: userName
+        displayName: userName  // Ensure this is the correct field
       });
       console.log("Display name set to:", userName);
     } catch (error) {

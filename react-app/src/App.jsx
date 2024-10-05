@@ -53,8 +53,8 @@ function App() {
       <Routes>
         {!sessionUser ? (
           <>
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/" element={<LoginPage />} />
+            <Route exact path="/" element={<LoginPage />} />
+            <Route exact path="/signup" element={<SignUpPage />} />
           </>
         ) : (
           <>
