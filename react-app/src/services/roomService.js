@@ -14,25 +14,22 @@ export const listenForUserUpdates = (userId, callback) => {
 };
  
 
-// Function to remove a user from the room
-export const removeUserFromRoom = async (roomId, user) => {
-  if (!roomId || !user) {
-    console.error("Invalid room ID or user data.");
-    return;
-  }
+export const removeUserFromRoom = async (roomId, userId) => {
+    console.log("💖 in firebase fx");
+    if (!roomId || !userId) {  // Change 'user' to 'userId'
+        console.error("Invalid room ID or user data.");
+        return;
+    }
 
-  try {
-    const roomDocRef = doc(db, "rooms", roomId);
-    await updateDoc(roomDocRef, {
-      users: arrayRemove({
-        uid: user.uid,
-        username: user.username
-      })
-    });
-    console.log('User removed from room successfully');
-  } catch (error) {
-    console.error('Error removing user from room: ', error);
-  }
+    try {
+        const roomDocRef = doc(db, "rooms", roomId);
+        await updateDoc(roomDocRef, {
+            users: arrayRemove(userId)
+        });
+        console.log('User removed from room successfully');
+    } catch (error) {
+        console.error('Error removing user from room: ', error);
+    }
 };
 
 export const fetchRoomByName = async (roomName) => {

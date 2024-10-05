@@ -31,14 +31,12 @@ export const addRoomThunk = (roomData) => async (dispatch) => {
 export const getAllRoomsThunk = () => async (dispatch) => {
     try {
         const rooms = await fetchRooms();
-        console.log("😍", rooms)
         dispatch(getAllRoomsAction(rooms));
     } catch (error) {
         console.log("Error fetching rooms:", error);
     }
 };
 
-// When a user enters a room, add them to the active user list
 export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
     try {
         await addUserToRoom(roomId, userId);
@@ -55,11 +53,11 @@ export const enterRoomThunk = (roomId, userId) => async (dispatch) => {
     }
 };
 
-// When a user leaves the room, remove them from the active user list
-export const leaveRoomThunk = (roomId, user) => async (dispatch) => {
+export const leaveRoomThunk = ({roomId, userId}) => async (dispatch) => {
+    console.log("😤 in leave room", roomId, userId)
     try {
-        await removeUserFromRoom(roomId, user);
-        dispatch(leaveRoomAction(roomId, user.uid));
+        await removeUserFromRoom(roomId, userId);
+        dispatch(leaveRoomAction(roomId, userId));
     } catch (error) {
         console.error("Error leaving room:", error);
     }
@@ -78,9 +76,8 @@ const roomReducer = (state = initialState, action) => {
         case ENTER_ROOM:
             
             room = state.allRooms[action.payload.roomId];
-            console.log("🔥", room)
             const newUser = action.payload.userId;
-            const currentUsers = state.currentRoom.users || [];
+            const currentUsers = state.currentRoom?.users || [];
 
             // Check if user is already in the room
             if (currentUsers.includes(newUser)) {
@@ -101,7 +98,7 @@ const roomReducer = (state = initialState, action) => {
         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
-                const updatedRoomUsers = state.currentRoom.users.filter(
+                const updatedRoomUsers = state.currentRoom?.users?.filter(
                     (user) => user.uid !== action.userId
                 );
 

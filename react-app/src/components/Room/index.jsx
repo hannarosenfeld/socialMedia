@@ -130,7 +130,7 @@ export default function Room() {
         removeUserFromRoom(roomIdRef.current, sessionUser)
           .then(async () => {
             console.log('User removed from room');
-            dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid })); // Remove user from Redux
+            dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
 
             const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
             setActiveUsers(updatedRoom.users);
