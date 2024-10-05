@@ -62,65 +62,68 @@ export default function Room() {
   const [activeUsers, setActiveUsers] = useState([]);
   const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
-
-  console.log("🤦🏻‍♀️", activeUsers)
+  const messagesEndRef = useRef(null); // Ref for the last message
 
   useEffect(() => {
     const unsubscribeUserListener = listenForUserUpdates(sessionUser.uid, (updatedUser) => {
-        // Update the active users list when the current user updates their profile
-        setActiveUsers((prevUsers) => 
-            prevUsers.map((user) => 
-                user.uid === updatedUser.uid ? updatedUser : user
-            )
-        );
+      setActiveUsers((prevUsers) => 
+        prevUsers.map((user) => 
+          user.uid === updatedUser.uid ? updatedUser : user
+        )
+      );
     });
 
-    // Fetch room data as previously
     const fetchRoomData = async () => {
-        try {
-            const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-            setRoom(fetchedRoom);
-            roomIdRef.current = fetchedRoom.id;
+      try {
+        const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+        setRoom(fetchedRoom);
+        roomIdRef.current = fetchedRoom.id;
 
-            await addUserToRoom(fetchedRoom.id, sessionUser);
-            setActiveUsers(fetchedRoom.users);
+        await addUserToRoom(fetchedRoom.id, sessionUser);
+        setActiveUsers(fetchedRoom.users);
 
-            const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
-                setMessages(newMessages);
+        const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
+          setMessages(newMessages);
 
-                const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-                setActiveUsers(updatedRoom.users);
-            });
+          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+          setActiveUsers(updatedRoom.users);
+        });
 
-            return () => {
-                unsubscribeMessages();
-            };
-        } catch (err) {
-            console.error("Error fetching room: ", err);
-        } finally {
-            setIsLoading(false);
-        }
+        return () => {
+          unsubscribeMessages();
+        };
+      } catch (err) {
+        console.error("Error fetching room: ", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchRoomData();
 
     return () => {
-        unsubscribeUserListener(); // Cleanup the user listener
-        if (sessionUser?.uid && roomIdRef.current) {
-            removeUserFromRoom(roomIdRef.current, sessionUser)
-                .then(async () => {
-                    console.log("User removed from room");
+      unsubscribeUserListener();
+      if (sessionUser?.uid && roomIdRef.current) {
+        removeUserFromRoom(roomIdRef.current, sessionUser)
+          .then(async () => {
+            console.log("User removed from room");
 
-                    const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
-                    setActiveUsers(updatedRoom.users);
-                })
-                .catch((err) => {
-                    console.error("Error removing user from room: ", err);
-                });
-        }
+            const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+            setActiveUsers(updatedRoom.users);
+          })
+          .catch((err) => {
+            console.error("Error removing user from room: ", err);
+          });
+      }
     };
-}, [dispatch, roomName, sessionUser]);
+  }, [dispatch, roomName, sessionUser]);
 
+  // Effect to scroll to the bottom when messages are updated
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
@@ -158,21 +161,22 @@ export default function Room() {
           <MessageList>
             {messages.map((message, index) => (
               <ListItem key={index}>
-              <ListItemText
-                primary={message?.content}
-                secondary={
-                  <span>
-                    <span style={{ color: message?.sender?.color || "black" }}>
-                      {message?.sender?.username}
+                <ListItemText
+                  primary={message?.content}
+                  secondary={
+                    <span>
+                      <span style={{ color: message?.sender?.color || "black" }}>
+                        {message?.sender?.username}
+                      </span>
+                      {' - '}
+                      {new Date(message.timestamp).toLocaleString()}
                     </span>
-                    {' - '}
-                    {new Date(message.timestamp).toLocaleString()}
-                  </span>
-                }
-              />
-            </ListItem>
-
+                  }
+                />
+              </ListItem>
             ))}
+            {/* Dummy div to track the end of messages */}
+            <div ref={messagesEndRef} />
           </MessageList>
           <MessageInputContainer>
             <MessageInput
