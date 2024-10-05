@@ -13,8 +13,11 @@ const Dashboard = () => {
   const [roomData, setRoomData] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
-    setLoading(false);
+    const fetchRooms = async () => {
+      await dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
+      setLoading(false);
+    };
+    fetchRooms();
   }, [dispatch]);
 
   const handleAddRoom = () => {
@@ -44,28 +47,25 @@ const Dashboard = () => {
 
   return (
     <>
-      {!loading && (
+      {!loading ? (
         <Container maxWidth="lg" className='page-wrapper'>
-          <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em"}} >
+          <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em" }}>
             {chatRooms.map(chatroom => (
               <Link key={chatroom.roomInfo?.id} to={`/rooms/${chatroom?.roomInfo?.name ? chatroom.roomInfo?.name.split(' ').join('-').toLowerCase() : ''}`}>
-                <Card className="room-card" style={{width: "25em"}}>
-                  <CardContent style={{display: "flex", gap: "1em"}}>
-                    <span className="material-symbols-outlined" style={{fontSize: "2.5em", alignSelf: "center"}}>
+                <Card className="room-card" style={{ width: "25em" }}>
+                  <CardContent style={{ display: "flex", gap: "1em" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "2.5em", alignSelf: "center" }}>
                       diversity_3
                     </span>
-                    <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
-                      <div style={{display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center"}}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <div style={{ display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center" }}>
                         <Typography component="h5">
                           {chatroom.roomInfo?.name}
                         </Typography>
-                        {/* <Typography style={{fontSize: "0.8em"}}>
-                          {chatroom.description}
-                        </Typography> */}
                       </div>
-                      <div style={{display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em"}}>
-                        <span style={{alignSelf: 'center', fontSize: "28px"}}>{chatroom.roomInfo.users?.length || 0}</span>
-                        <span style={{fontSize: "12px", width: "3em"}}>people chatting</span>
+                      <div style={{ display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em" }}>
+                        <span style={{ alignSelf: 'center', fontSize: "28px" }}>{chatroom.roomInfo.users?.length || 0}</span>
+                        <span style={{ fontSize: "12px", width: "3em" }}>people chatting</span>
                       </div>
                     </div>
                   </CardContent>
@@ -76,6 +76,10 @@ const Dashboard = () => {
               <span className="material-symbols-outlined">add</span>Add Room
             </Button>
           </div>
+        </Container>
+      ) : (
+        <Container maxWidth="lg" className='page-wrapper'>
+          <Typography variant="h6" align="center">Loading rooms...</Typography>
         </Container>
       )}
       <Modal
@@ -108,17 +112,6 @@ const Dashboard = () => {
             onChange={handleChange}
             sx={{ mb: 2 }}
           />
-          {/* <TextField
-            fullWidth
-            label="Description"
-            variant="outlined"
-            name="description"
-            value={roomData.description}
-            onChange={handleChange}
-            multiline
-            rows={4}
-            sx={{ mb: 2 }}
-          /> */}
           <Button onClick={handleSubmit} variant="contained" color="primary">
             Add
           </Button>

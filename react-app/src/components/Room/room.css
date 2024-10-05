@@ -1,6 +1,6 @@
 .chat-container {
     display: flex;
-    flexDirection: row;
+    flex-direction: row;
     flex: 1;
     height: 90vh;
     width: 100%;
@@ -9,7 +9,7 @@
   .messages-section {
     flex: 3;
     display: flex;
-    flexDirection: column;
+    flex-direction: column;
   }
   
   .message-list {

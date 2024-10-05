@@ -1,9 +1,27 @@
 import { useEffect, useState, useRef } from 'react';
-import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Container,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  CircularProgress,
+  Box,
+} from '@mui/material';
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { listenForUserUpdates, addUserToRoom, fetchRoomByName, removeUserFromRoom, addMessage, listenForMessages } from '../../services/roomService';
+import {
+  listenForUserUpdates,
+  addUserToRoom,
+  fetchRoomByName,
+  removeUserFromRoom,
+  addMessage,
+  listenForMessages,
+} from '../../services/roomService';
 
 // Styled components using MUI's styled utility
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -66,8 +84,8 @@ export default function Room() {
 
   useEffect(() => {
     const unsubscribeUserListener = listenForUserUpdates(sessionUser.uid, (updatedUser) => {
-      setActiveUsers((prevUsers) => 
-        prevUsers.map((user) => 
+      setActiveUsers((prevUsers) =>
+        prevUsers.map((user) =>
           user.uid === updatedUser.uid ? updatedUser : user
         )
       );
@@ -75,7 +93,7 @@ export default function Room() {
 
     const fetchRoomData = async () => {
       try {
-        const fetchedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+        const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         setRoom(fetchedRoom);
         roomIdRef.current = fetchedRoom.id;
 
@@ -85,7 +103,7 @@ export default function Room() {
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, async (newMessages) => {
           setMessages(newMessages);
 
-          const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+          const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
           setActiveUsers(updatedRoom.users);
         });
 
@@ -93,7 +111,7 @@ export default function Room() {
           unsubscribeMessages();
         };
       } catch (err) {
-        console.error("Error fetching room: ", err);
+        console.error('Error fetching room: ', err);
       } finally {
         setIsLoading(false);
       }
@@ -106,13 +124,13 @@ export default function Room() {
       if (sessionUser?.uid && roomIdRef.current) {
         removeUserFromRoom(roomIdRef.current, sessionUser)
           .then(async () => {
-            console.log("User removed from room");
+            console.log('User removed from room');
 
-            const updatedRoom = await fetchRoomByName(roomName.split("-").join(" "));
+            const updatedRoom = await fetchRoomByName(roomName.split('-').join(' '));
             setActiveUsers(updatedRoom.users);
           })
           .catch((err) => {
-            console.error("Error removing user from room: ", err);
+            console.error('Error removing user from room: ', err);
           });
       }
     };
@@ -132,7 +150,7 @@ export default function Room() {
         sender: {
           uid: sessionUser.uid,
           username: sessionUser.username,
-          color: sessionUser.color
+          color: sessionUser.color,
         },
         timestamp: new Date().toISOString(),
       };
@@ -159,43 +177,49 @@ export default function Room() {
       <ChatContainer>
         <MessagesSection>
           <MessageList>
-            {messages.map((message, index) => (
+            {messages?.map((msg, index) => (
               <ListItem key={index}>
                 <ListItemText
-                  primary={message?.content}
-                  secondary={
-                    <span>
-                      <span style={{ color: message?.sender?.color || "black" }}>
-                        {message?.sender?.username}
-                      </span>
-                      {' - '}
-                      {new Date(message.timestamp).toLocaleString()}
-                    </span>
+                  primary={
+                    <Typography style={{ color: msg.sender?.color }}>
+                      {msg.sender?.username}
+                    </Typography>
                   }
+                  secondary={msg.content}
                 />
               </ListItem>
             ))}
-            {/* Dummy div to track the end of messages */}
             <div ref={messagesEndRef} />
           </MessageList>
+
           <MessageInputContainer>
             <MessageInput
+              label="Type your message..."
               variant="outlined"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage();
+                }
+              }}
             />
-            <Button variant="contained" color="primary" onClick={handleSendMessage}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSendMessage}
+            >
               Send
             </Button>
           </MessageInputContainer>
         </MessagesSection>
+
         <UsersSection>
-          <Typography variant="h6">Users</Typography>
+          <Typography variant="h6">Active Users</Typography>
           <List>
-            {activeUsers?.map((user, index) => (
+            {activeUsers.map((user, index) => (
               <ListItem key={index}>
-                <ListItemText primary={user?.username} />
+                <ListItemText primary={user.username} />
               </ListItem>
             ))}
           </List>

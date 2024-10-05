@@ -1,21 +1,27 @@
-import { fetchRooms, addRoom, addUserToRoom } from '../services/roomService';
-
-// Action Types
+import { fetchRooms } from "../services/roomService";
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
 const ENTER_ROOM = "room/ENTER_ROOM";
 const LEAVE_ROOM = "room/LEAVE_ROOM";
 
-// Action Creators
-// const enterRoomAction = (payload) => ({ type: ENTER_ROOM, payload });
-const getAllRoomsAction = (rooms) => ({ type: GET_ALL_ROOMS, rooms });
-export const leaveRoomAction = (roomId, userId) => ({ type: LEAVE_ROOM, roomId, userId });
+const getAllRoomsAction = (rooms) => ({
+    type: GET_ALL_ROOMS,
+    rooms,
+});
 
-// Thunks
+export const leaveRoomAction = (roomId, userId) => ({
+    type: LEAVE_ROOM,
+    roomId,
+    userId,
+});
+
 export const addRoomThunk = (roomData) => async (dispatch) => {
     try {
         const newRoom = await addRoom(roomData);
-        dispatch({ type: ADD_ROOM, room: newRoom });
+        dispatch({
+            type: ADD_ROOM,
+            room: newRoom,
+        });
     } catch (error) {
         console.log("Error adding room:", error);
     }
@@ -30,29 +36,40 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-// export const enterRoomThunk = (user, room) => async (dispatch) => {
-//     try {
-//       // Update the Firestore room document with the new user
-//       await addUserToRoom(room.id, user); // Pass the whole user object  
-//       const entrance = {
-//         user,
-//         room,
-//       };
-//       dispatch(enterRoomAction(entrance));
-//     } catch (error) {
-//       console.error("Error entering room:", error);
-//     }
-//   };
-  
+// When a user enters a room, add them to the active user list
+export const enterRoomThunk = (user, roomId) => async (dispatch) => {
+    try {
+        await addUserToRoom(roomId, user);
+        const roomData = {
+            roomId,
+            user,
+        };
+        dispatch({
+            type: ENTER_ROOM,
+            payload: roomData,
+        });
+    } catch (error) {
+        console.error("Error entering room:", error);
+    }
+};
 
+// When a user leaves the room, remove them from the active user list
+export const leaveRoomThunk = (roomId, user) => async (dispatch) => {
+    try {
+        await removeUserFromRoom(roomId, user);
+        dispatch(leaveRoomAction(roomId, user.uid));
+    } catch (error) {
+        console.error("Error leaving room:", error);
+    }
+};
 
 // Initial State
 const initialState = {
-    allRooms: {},
+    allRooms: {}, // All rooms with their details
     currentRoom: {
         room: {},
-        users: [] // Adding users to track who is in the current room
-    }
+        users: [], // Active users in the current room
+    },
 };
 
 // Reducer
@@ -60,64 +77,68 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            console.log("🧏🏿‍♂️", action.payload)
-            room = action.payload.room;
-            const user = action.payload.user.username;
+            room = state.allRooms[action.payload.roomId];
+            const newUser = action.payload.user.username;
             const currentUsers = state.currentRoom.users || [];
-        
-            // If the user is already in the room, don't re-add them
-            if (currentUsers.includes(user)) {
+
+            // Check if user is already in the room
+            if (currentUsers.includes(newUser)) {
                 return state;
             }
-        
+
             return {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [room.id]: {
-                        ...state.allRooms[room.uid],
-                        activeUsers: (state.allRooms[room.uid]?.users || 0) + 1
-                    }
+                    [action.payload.roomId]: {
+                        ...room,
+                        activeUsers: (room?.activeUsers || 0) + 1,
+                    },
                 },
                 currentRoom: {
-                    room: action.payload.room,
-                    users: [...currentUsers, user] // Adding the new user to the room
-                }
+                    room: state.allRooms[action.payload.roomId],
+                    users: [...currentUsers, newUser],
+                },
             };
-        
+
         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
                 const updatedUsers = room.activeUsers - 1;
+                const updatedRoomUsers = state.currentRoom.users.filter(
+                    (user) => user.uid !== action.userId
+                );
+
                 return {
                     ...state,
                     allRooms: {
                         ...state.allRooms,
                         [action.roomId]: {
                             ...room,
-                            activeUsers: updatedUsers
-                        }
+                            activeUsers: updatedUsers,
+                        },
                     },
-                    // Clear currentRoom when leaving
                     currentRoom: {
                         room: {},
-                        users: [] 
-                    }
+                        users: updatedRoomUsers,
+                    },
                 };
             }
             return state;
+
         case GET_ALL_ROOMS:
             const allRooms = {};
-            action.rooms.forEach(room => {
+            action.rooms.forEach((room) => {
                 allRooms[room.id] = {
                     roomInfo: room,
-                    activeUsers: 0
+                    activeUsers: room.activeUsers || 0,
                 };
             });
             return {
                 ...state,
-                allRooms
+                allRooms,
             };
+
         case ADD_ROOM:
             return {
                 ...state,
@@ -125,10 +146,11 @@ const roomReducer = (state = initialState, action) => {
                     ...state.allRooms,
                     [action.room.id]: {
                         roomInfo: action.room,
-                        activeUsers: 0
-                    }
-                }
+                        activeUsers: 0,
+                    },
+                },
             };
+
         default:
             return state;
     }
