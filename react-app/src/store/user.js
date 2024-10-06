@@ -16,16 +16,23 @@ export const removeUser = () => ({
 });
 
 // Thunk to update user info in Firebase and state
-export const editUserThunk = (userId, updatedData) => async (dispatch) => {
+export const editUserThunk = (sessionUser, updatedData) => async (dispatch) => {
+  console.log("💄", user, updatedData)
   try {
     // Update user data in Firestore
-    await setDoc(doc(db, "users", userId), updatedData, { merge: true });
+    await setDoc(doc(db, "users", sessionUser.id), updatedData, { merge: true });
     console.log("User data saved successfully!");
+    const user = {
+      uid : user.uid,
+      email: user.email,
+      username: updatedData.username,
+      color: updatedData.color,
 
-    // If username is updated, update it in chatrooms
-    if (updatedData.username) {
-      await updateUsernameInChatrooms(userId, updatedData.username);
     }
+    // // If username is updated, update it in chatrooms
+    // if (updatedData.username) {
+    //   await updateUsernameInChatrooms(userId, updatedData.username);
+    // }
 
     // Dispatch Redux action to update state
     dispatch(setUser(updatedData));
