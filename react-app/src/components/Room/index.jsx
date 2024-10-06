@@ -213,7 +213,7 @@ export default function Room() {
             <List>
               {activeUsers?.map((user, index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={user.username || 'Loading...'} />
+                  <ListItemText primary={user.username} />
                 </ListItem>
               ))}
             </List>
