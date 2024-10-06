@@ -55,6 +55,7 @@ export const enterRoomThunk = (roomId, user) => async (dispatch) => {
 };
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
+    console.log("🧤", roomId, userId)
     try {
         await removeUserFromRoom(roomId, userId);
         dispatch(leaveRoomAction(roomId, userId));

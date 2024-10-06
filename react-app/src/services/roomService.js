@@ -15,7 +15,8 @@ export const listenForUserUpdates = (userId, callback) => {
  
 
 export const removeUserFromRoom = async (roomId, userId) => {
-    if (!roomId || !userId) {  // Change 'user' to 'userId'
+  console.log("👕remove", roomId, userId)
+    if (!roomId || !userId) {
         console.error("Invalid room ID or user data.");
         return;
     }

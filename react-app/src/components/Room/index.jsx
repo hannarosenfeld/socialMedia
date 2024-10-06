@@ -77,25 +77,14 @@ export default function Room() {
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
   const [activeUsers, setActiveUsers] = useState([]);
-  const [room, setRoom] = useState(null);
   const roomIdRef = useRef(null); // Create a ref for the room ID
   const messagesEndRef = useRef(null); // Ref for the last message
   const currentRoom = useSelector((state) => state.room.currentRoom);
 
-  // Effect to fetch room data and set listeners
   useEffect(() => {
-    const unsubscribeUserListener = listenForUserUpdates(sessionUser.uid, (updatedUser) => {
-      setActiveUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.uid === updatedUser.uid ? updatedUser : user
-        )
-      );
-    });
-
     const fetchRoomData = async () => {
       try {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
-        setRoom(fetchedRoom);
         roomIdRef.current = fetchedRoom.id;
 
         // Enter room via thunk
@@ -120,16 +109,7 @@ export default function Room() {
 
     // Cleanup on component unmount
     return () => {
-      unsubscribeUserListener(); // Clean up user listener
-      if (sessionUser?.uid && roomIdRef.current) {
-        removeUserFromRoom(roomIdRef.current, sessionUser)
-          .then(() => {
-            dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
-          })
-          .catch((err) => {
-            console.error('Error removing user from room: ', err);
-          });
-      }
+      if (roomIdRef.current) dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
     };
   }, [dispatch, roomName, sessionUser]);
 
