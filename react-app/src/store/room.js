@@ -1,4 +1,4 @@
-import { fetchRooms, addRoom, addUserToRoom, removeUserFromRoom } from "../services/roomService.js";
+import { fetchRooms, addRoom,fetchRoomUsers, addUserToRoom, removeUserFromRoom } from "../services/roomService.js";
 
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
@@ -37,13 +37,20 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
+ 
 export const enterRoomThunk = (roomId, user) => async (dispatch) => {
     try {
+        // Add user to the room
         await addUserToRoom(roomId, user);
+        
+        // Fetch all users in the room from Firebase
+        const users = await fetchRoomUsers(roomId);
+
         const roomData = {
             roomId,
-            user
+            users,
         };
+
         dispatch({
             type: ENTER_ROOM,
             payload: roomData,
@@ -52,6 +59,7 @@ export const enterRoomThunk = (roomId, user) => async (dispatch) => {
         console.error("Error entering room:", error);
     }
 };
+
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
     console.log("👛 leave room thunk");
@@ -75,23 +83,13 @@ const roomReducer = (state = initialState, action) => {
     switch (action.type) {
         case ENTER_ROOM:
             room = state.allRooms[action.payload.roomId];
-            const newUser = action.payload.user;
-        
-            // Ensure room.users is an array before using it
-            const currentUsers = Array.isArray(room.users) ? room.users : []; 
-        
-            console.log("🩱 currentUsers: ", currentUsers);
-            console.log("👘 newUser: ", newUser);
-
+            const users = action.payload.users;
         
             // Convert room.users array to an object with uid as the key
-            const usersObj = currentUsers.reduce((acc, user) => {
+            const usersObj = users.reduce((acc, user) => {
                 acc[user.uid] = user; // Set uid as the key and user object as the value
                 return acc;
             }, {});
-        
-            // Add the new user to the users object
-            usersObj[newUser.uid] = newUser;
         
             const convertedRoom = {
                 id: room.id,

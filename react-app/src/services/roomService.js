@@ -191,3 +191,27 @@ export const listenForMessages = (roomId, callback) => {
     }
   });
 };
+
+
+export const fetchRoomUsers = async (roomId) => {
+  if (!roomId) {
+    console.error("Invalid room ID.");
+    return null;
+  }
+
+  try {
+    const roomDocRef = doc(db, 'rooms', roomId);
+    const roomSnapshot = await getDoc(roomDocRef);
+    
+    if (roomSnapshot.exists()) {
+      const roomData = roomSnapshot.data();
+      return roomData.users || []; // Return the list of users in the room
+    } else {
+      console.log("No such room!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching room users:", error);
+    return null;
+  }
+};
