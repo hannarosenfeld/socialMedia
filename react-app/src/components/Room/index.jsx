@@ -82,18 +82,19 @@ export default function Room() {
   const currentRoom = useSelector((state) => state.room.currentRoom);
 
   useEffect(() => {
+    console.log('Fetching room data...');
     const fetchRoomData = async () => {
       try {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         roomIdRef.current = fetchedRoom.id;
-
+  
         await dispatch(enterRoomThunk(fetchedRoom.id, sessionUser));
-
+        
         // Listen for new messages
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, (newMessages) => {
           setMessages(newMessages);
         });
-
+  
         return () => {
           unsubscribeMessages(); // Clean up message listener on unmount
         };
@@ -103,14 +104,18 @@ export default function Room() {
         setIsLoading(false); // Stop loading once room data is fetched
       }
     };
-
+  
     fetchRoomData();
-
+  
     // Cleanup on component unmount
     return () => {
-      if (roomIdRef.current) dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
+      if (roomIdRef.current) {
+        console.log('Leaving room:', roomIdRef.current);
+        dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
+      }
     };
-  }, [dispatch, roomName, sessionUser]);
+  }, []);
+  
 
   // Effect to set active users when `currentRoom` changes
   useEffect(() => {

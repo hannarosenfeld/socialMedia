@@ -54,7 +54,7 @@ export const enterRoomThunk = (roomId, user) => async (dispatch) => {
 };
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
-    console.log("👛 leave room thunk")
+    console.log("👛 leave room thunk");
     try {
         await removeUserFromRoom(roomId, userId);
         dispatch(leaveRoomAction(roomId, userId));
@@ -74,36 +74,46 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            // Get the current room based on the room ID from the action payload
             room = state.allRooms[action.payload.roomId];
             const newUser = action.payload.user;
-            const currentUsers = state.currentRoom?.users || {};
+        
+            // Ensure room.users is an array before using it
+            const currentUsers = Array.isArray(room.users) ? room.users : []; 
+        
+            console.log("🩱 currentUsers: ", currentUsers);
+            console.log("👘 newUser: ", newUser);
 
-            // Check if the new user ID exists in the currentUsers object
-            if (newUser && newUser.uid in currentUsers) {
-                return state; // User already in room, return current state
-            }
-
-            // Ensure users object exists
-            const updatedUsers = {
-                ...room?.users || {}, // Spread the existing users or an empty object
-                [newUser.uid]: newUser
+        
+            // Convert room.users array to an object with uid as the key
+            const usersObj = currentUsers.reduce((acc, user) => {
+                acc[user.uid] = user; // Set uid as the key and user object as the value
+                return acc;
+            }, {});
+        
+            // Add the new user to the users object
+            usersObj[newUser.uid] = newUser;
+        
+            const convertedRoom = {
+                id: room.id,
+                name: room.name,
+                messages: room.messages,
+                users: usersObj // Assign the newly created users object here
             };
-
+        
+            // Return the new state with the updated room
             return {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [action.payload.roomId]: {
-                        ...room,
-                        users: updatedUsers,
-                    },
+                    [room.id]: convertedRoom // Update the room with the new user object
                 },
                 currentRoom: {
-                    ...room, 
-                    users: updatedUsers,
-                }
+                    ...state.currentRoom,
+                    users: usersObj
+                }                
             };
+        
+ 
 
         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
@@ -121,7 +131,7 @@ const roomReducer = (state = initialState, action) => {
                         ...state.allRooms,
                         [action.roomId]: {
                             ...room,
-                            users: currentUsers
+                            users: currentUsers,
                         },
                     },
                     currentRoom: state.currentRoom?.id === action.roomId ? null : state.currentRoom,
@@ -129,16 +139,26 @@ const roomReducer = (state = initialState, action) => {
             }
             return state;
 
-        case GET_ALL_ROOMS:
-            const allRooms = {};
-            action.rooms.forEach((room) => {
-                allRooms[room.id] = room;
-            });
-            return {
-                ...state,
-                allRooms,
-            };
+            case GET_ALL_ROOMS:
+                console.log("💁‍♀️ all rooms", action.rooms);
+                const allRooms = {};
+                
+                action.rooms.forEach((room) => {
+                    allRooms[room.id] = {
+                        ...room,
+                    };
+                });
+                console.log("🐅", {
+                    ...state,
+                    allRooms,
+                }
+            );
 
+                return {
+                    ...state,
+                    allRooms,
+                };
+            
         case ADD_ROOM:
             return {
                 ...state,
