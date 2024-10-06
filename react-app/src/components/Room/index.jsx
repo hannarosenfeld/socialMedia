@@ -138,10 +138,8 @@ export default function Room() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (currentRoom && currentRoom.users.length) {
-        console.log("🐳 we are fetching the users", currentRoom.users);
         const usersDataPromises = currentRoom.users.map(async (user) => {
           const userData = await getRoomUserData(user);
-          console.log("🦓", { user, userData });
           return { user, ...userData };
         });
 

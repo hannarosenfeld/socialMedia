@@ -41,9 +41,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 export const enterRoomThunk = (room, user) => async (dispatch) => {
     const roomId = room.id
     const userAlreadyInRoom = room.users.find(u => u.uid === user.uid)
-
-    console.log("🦋 user already in room: ", userAlreadyInRoom)
-
     try {
         // Add user to the room
         if (!userAlreadyInRoom) await addUserToRoom(roomId, user);
@@ -67,7 +64,6 @@ export const enterRoomThunk = (room, user) => async (dispatch) => {
 
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
-    console.log("👛 leave room thunk");
     try {
         await removeUserFromRoom(roomId, userId);
         dispatch(leaveRoomAction(roomId, userId));
@@ -92,7 +88,6 @@ const roomReducer = (state = initialState, action) => {
         
             // Convert room.users array to an object with uid as the key
             const usersUIDArray = users.map(user => user.uid)
-            console.log("🪼usersUIDArray", usersUIDArray)
         
             const convertedRoom = {
                 id: room.id,

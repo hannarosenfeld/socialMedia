@@ -18,7 +18,6 @@ const getRoomUserData = async (userId) => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-            console.log("🐠", docSnap.data())
             return docSnap.data(); // Return user data for further use if needed
         } else {
             return null; // Return null if user not found
