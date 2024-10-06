@@ -81,7 +81,7 @@ export default function Room() {
   const roomIdRef = useRef(null);
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
-  const [isFirstLoad, setIsFirstLoad] = useState(true); // New state for first load
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Listen for user updates
   useEffect(() => {

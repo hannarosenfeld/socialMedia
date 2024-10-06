@@ -1,17 +1,16 @@
 import { doc, onSnapshot, collection, query, where, getDocs, addDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, firestore } from '../firebase/firebase.config'; // Adjust the path as necessary
 
-// This function listens for changes to a specific user's document
-export const listenForUserUpdates = (userId, callback) => {
-    const userDocRef = doc(firestore, 'users', userId);
-    return onSnapshot(userDocRef, (doc) => {
-        if (doc.exists()) {
-            callback(doc.data());
-        } else {
-            console.log("No such user!");
-        }
-    });
-};
+export const listenForUserUpdates = (roomId, callback) => {
+    return firestore
+      .collection('rooms')
+      .doc(roomId)
+      .onSnapshot((snapshot) => {
+        const roomData = snapshot.data();
+        callback(roomData.users); // Assuming users are stored in roomData.users
+      });
+  };
+  
 
 export const removeUserFromRoom = async (roomId, userId) => {
     if (!roomId || !userId) {
