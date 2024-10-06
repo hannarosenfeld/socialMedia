@@ -87,7 +87,6 @@ export default function Room() {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         roomIdRef.current = fetchedRoom.id;
 
-        // Enter room via thunk
         await dispatch(enterRoomThunk(fetchedRoom.id, sessionUser));
 
         // Listen for new messages

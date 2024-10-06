@@ -38,7 +38,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 };
 
 export const enterRoomThunk = (roomId, user) => async (dispatch) => {
-    console.log("💘 in thunk", roomId, user)
     try {
         await addUserToRoom(roomId, user);
         const roomData = {
@@ -55,7 +54,7 @@ export const enterRoomThunk = (roomId, user) => async (dispatch) => {
 };
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
-    console.log("🧤", roomId, userId)
+    console.log("👛 leave room thunk")
     try {
         await removeUserFromRoom(roomId, userId);
         dispatch(leaveRoomAction(roomId, userId));
@@ -75,8 +74,6 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            console.log("❤️‍🔥 we are in the reducer", action.payload);
-
             // Get the current room based on the room ID from the action payload
             room = state.allRooms[action.payload.roomId];
             const newUser = action.payload.user;
@@ -137,7 +134,6 @@ const roomReducer = (state = initialState, action) => {
             action.rooms.forEach((room) => {
                 allRooms[room.id] = room;
             });
-            console.log("👚", allRooms)
             return {
                 ...state,
                 allRooms,

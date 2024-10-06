@@ -1,4 +1,4 @@
-import { doc, onSnapshot, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, getDocs, addDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, firestore } from '../firebase/firebase.config'; // Adjust the path as necessary
  
 // This function listens for changes to a specific user's document
@@ -13,23 +13,40 @@ export const listenForUserUpdates = (userId, callback) => {
     });
 };
  
-
 export const removeUserFromRoom = async (roomId, userId) => {
-  console.log("👕remove", roomId, userId)
-    if (!roomId || !userId) {
-        console.error("Invalid room ID or user data.");
+  console.log("👕remove", roomId, userId);
+  if (!roomId || !userId) {
+      console.error("Invalid room ID or user data.");
+      return;
+  }
+
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+    const roomDoc = await getDoc(roomDocRef); // Fetch current room state
+    const currentUsers = roomDoc.data().users;
+
+    console.log("Current users before removal:", currentUsers);
+
+    // Check if the user exists in the currentUsers array
+    const userToRemove = currentUsers.find(user => user.uid === userId);
+    if (!userToRemove) {
+        console.error("User not found in room:", userId);
         return;
     }
 
-    try {
-        const roomDocRef = doc(db, "rooms", roomId);
-        await updateDoc(roomDocRef, {
-            users: arrayRemove(userId)
-        });
-        console.log('User removed from room successfully');
-    } catch (error) {
-        console.error('Error removing user from room: ', error);
-    }
+    await updateDoc(roomDocRef, {
+        users: arrayRemove(userToRemove) // Use the whole user object
+    });
+
+    console.log('User removed from room successfully');
+
+    // Optionally fetch the updated list of users
+    const updatedRoomDoc = await getDoc(roomDocRef);
+    console.log("Updated users after removal:", updatedRoomDoc.data().users);
+} catch (error) {
+    console.error('Error removing user from room: ', error);
+}
+
 };
 
 export const fetchRoomByName = async (roomName) => {
@@ -81,17 +98,26 @@ export const addUserToRoom = async (roomId, user) => {
         return;
     }
 
+    // Ensure the user object has all necessary fields defined
+    const userWithDefaults = {
+        uid: user.uid || "",
+        username: user.username || "Anonymous", // Provide a default username
+        color: user.color || "defaultColor", // Provide a default color
+        // Add any other default properties if needed
+    };
+
     try {
         const roomDocRef = doc(db, "rooms", roomId);
-        // Update the users field to store the user ID with its data
+        // Update the users array to include the new user
         await updateDoc(roomDocRef, {
-            [`users.${user.uid}`]: user
+            users: arrayUnion(userWithDefaults) // Use arrayUnion to add the user
         });
         console.log('User added to room successfully');
     } catch (error) {
         console.error('Error adding user to room: ', error);
     }
 };
+
 
 
 
