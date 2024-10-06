@@ -91,16 +91,14 @@ const roomReducer = (state = initialState, action) => {
             const users = action.payload.users;
         
             // Convert room.users array to an object with uid as the key
-            const usersObj = users.reduce((acc, user) => {
-                acc[user.uid] = user; // Set uid as the key and user object as the value
-                return acc;
-            }, {});
+            const usersUIDArray = users.map(user => user.uid)
+            console.log("🪼usersUIDArray", usersUIDArray)
         
             const convertedRoom = {
                 id: room.id,
                 name: room.name,
                 messages: room.messages,
-                users: usersObj // Assign the newly created users object here
+                users: usersUIDArray
             };
         
             // Return the new state with the updated room
@@ -112,7 +110,7 @@ const roomReducer = (state = initialState, action) => {
                 },
                 currentRoom: {
                     ...state.currentRoom,
-                    users: usersObj
+                    users: usersUIDArray
                 }                
             };
         
@@ -123,7 +121,8 @@ const roomReducer = (state = initialState, action) => {
                 const currentUsers = { ...room.users };
 
                 // Remove the user from the users object
-                delete currentUsers[action.userId];
+                console.log(currentUsers)
+                // delete currentUsers.find(user => user.uid == action.userId);
 
                 // Handle if current room was left by all users
                 return {

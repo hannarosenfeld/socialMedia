@@ -22,6 +22,7 @@ import {
   listenForMessages,
 } from '../../services/roomService';
 import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
+import { getRoomUserData } from '../../services/userService';
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -77,61 +78,89 @@ export default function Room() {
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
   const [activeUsers, setActiveUsers] = useState([]);
-  const roomIdRef = useRef(null); // Create a ref for the room ID
-  const messagesEndRef = useRef(null); // Ref for the last message
+  const roomIdRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
+  const [isFirstLoad, setIsFirstLoad] = useState(true); // New state for first load
 
+  // Listen for user updates
   useEffect(() => {
-    console.log('Fetching room data...');
+    if (currentRoom && currentRoom.id) {
+      const unsubscribeUserUpdates = listenForUserUpdates(currentRoom.id, (updatedUsers) => {
+        console.log("Updated users:", updatedUsers); // Check if this is triggered correctly
+        setActiveUsers(updatedUsers);
+      });
+    
+      return () => {
+        unsubscribeUserUpdates();
+      };
+    }
+  }, [currentRoom]);
+
+  // Fetch room data
+  useEffect(() => {
     const fetchRoomData = async () => {
       try {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         roomIdRef.current = fetchedRoom.id;
-  
+
         await dispatch(enterRoomThunk(fetchedRoom, sessionUser));
-        
-        // Listen for new messages
+
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, (newMessages) => {
           setMessages(newMessages);
+          // Scroll down on the first load
+          if (isFirstLoad && messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            setIsFirstLoad(false); // Set first load to false after scrolling
+          }
         });
-  
+
         return () => {
-          unsubscribeMessages(); // Clean up message listener on unmount
+          unsubscribeMessages();
         };
       } catch (err) {
         console.error('Error fetching room: ', err);
       } finally {
-        setIsLoading(false); // Stop loading once room data is fetched
+        setIsLoading(false);
       }
     };
-  
+
     fetchRoomData();
-  
-    // Cleanup on component unmount
+
     return () => {
       if (roomIdRef.current) {
-        console.log('Leaving room:', roomIdRef.current);
         dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
       }
     };
-  }, []);
-  
+  }, [dispatch, roomName, sessionUser, isFirstLoad]); // Add isFirstLoad to dependencies
 
-  // Effect to set active users when `currentRoom` changes
+  // Fetch active users when currentRoom changes
   useEffect(() => {
-    if (currentRoom && Object.values(currentRoom.users).length) {
-      const userArray = Object.values(currentRoom?.users);
-      setActiveUsers(userArray);
-    }
+    const fetchUserData = async () => {
+      if (currentRoom && currentRoom.users.length) {
+        console.log("🐳 we are fetching the users", currentRoom.users);
+        const usersDataPromises = currentRoom.users.map(async (user) => {
+          const userData = await getRoomUserData(user);
+          console.log("🦓", { user, userData });
+          return { user, ...userData };
+        });
+
+        const usersData = await Promise.all(usersDataPromises);
+        setActiveUsers(usersData);
+      }
+    };
+
+    fetchUserData();
   }, [currentRoom]);
 
-  // Effect to scroll to the bottom when messages are updated
+  // Scroll to bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (!isFirstLoad && messagesEndRef.current) { // Skip scrolling on first load
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, isFirstLoad]);
 
+  // Send message handler
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
       const message = {
@@ -146,7 +175,7 @@ export default function Room() {
 
       try {
         await addMessage(roomIdRef.current, message);
-        setInput(''); // Clear the input field after sending
+        setInput('');
       } catch (error) {
         console.error('Error sending message:', error);
       }
@@ -166,26 +195,25 @@ export default function Room() {
       {activeUsers.length > 0 && (
         <ChatContainer>
           <MessagesSection>
-          <MessageList>
-            {messages.map((message, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={message?.content}
-                  secondary={
-                    <span>
-                      <span style={{ color: message?.sender?.color || "black" }}>
-                        {message?.sender?.username}
+            <MessageList>
+              {messages.map((message, index) => (
+                <ListItem key={index}>
+                  <ListItemText
+                    primary={message?.content}
+                    secondary={
+                      <span>
+                        <span style={{ color: message?.sender?.color || "black" }}>
+                          {message?.sender?.username}
+                        </span>
+                        {' - '}
+                        {new Date(message.timestamp).toLocaleString()}
                       </span>
-                      {' - '}
-                      {new Date(message.timestamp).toLocaleString()}
-                    </span>
-                  }
-                />
-              </ListItem>
-            ))}
-            {/* Dummy div to track the end of messages */}
-            <div ref={messagesEndRef} />
-          </MessageList>
+                    }
+                  />
+                </ListItem>
+              ))}
+              <div ref={messagesEndRef} />
+            </MessageList>
             <MessageInputContainer>
               <MessageInput
                 label="Type your message..."
@@ -211,7 +239,7 @@ export default function Room() {
           <UsersSection>
             <Typography variant="h6">Active Users</Typography>
             <List>
-              {activeUsers?.map((user, index) => (
+              {activeUsers.map((user, index) => (
                 <ListItem key={index}>
                   <ListItemText primary={user.username} />
                 </ListItem>
