@@ -38,10 +38,15 @@ export const getAllRoomsThunk = () => async (dispatch) => {
 };
 
  
-export const enterRoomThunk = (roomId, user) => async (dispatch) => {
+export const enterRoomThunk = (room, user) => async (dispatch) => {
+    const roomId = room.id
+    const userAlreadyInRoom = room.users?.find(u => u.uid === user.uid)
+
+    console.log("🦐 userAlready in romom", userAlreadyInRoom)
+
     try {
         // Add user to the room
-        await addUserToRoom(roomId, user);
+        if (!userAlreadyInRoom) await addUserToRoom(roomId, user);
         
         // Fetch all users in the room from Firebase
         const users = await fetchRoomUsers(roomId);
@@ -111,9 +116,7 @@ const roomReducer = (state = initialState, action) => {
                 }                
             };
         
- 
-
-        case LEAVE_ROOM:
+         case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
                 // Clone the current room's users object
@@ -138,20 +141,13 @@ const roomReducer = (state = initialState, action) => {
             return state;
 
             case GET_ALL_ROOMS:
-                console.log("💁‍♀️ all rooms", action.rooms);
                 const allRooms = {};
-                
+
                 action.rooms.forEach((room) => {
                     allRooms[room.id] = {
                         ...room,
                     };
                 });
-                console.log("🐅", {
-                    ...state,
-                    allRooms,
-                }
-            );
-
                 return {
                     ...state,
                     allRooms,

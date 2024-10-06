@@ -88,7 +88,7 @@ export default function Room() {
         const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
         roomIdRef.current = fetchedRoom.id;
   
-        await dispatch(enterRoomThunk(fetchedRoom.id, sessionUser));
+        await dispatch(enterRoomThunk(fetchedRoom, sessionUser));
         
         // Listen for new messages
         const unsubscribeMessages = listenForMessages(fetchedRoom.id, (newMessages) => {
