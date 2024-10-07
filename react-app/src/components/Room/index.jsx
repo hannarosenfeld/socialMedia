@@ -132,15 +132,21 @@ export default function Room() {
         },
         timestamp: new Date().toISOString(),
       };
-
+  
       try {
         await addMessage(currentRoom.id, message);
         setInput('');
+  
+        // Scroll to bottom after sending message
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
   };
+  
 
   const handleLeaveRoom = () => {
     dispatch(leaveRoomAction(currentRoom.id, sessionUser.uid));
