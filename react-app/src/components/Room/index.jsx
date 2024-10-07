@@ -201,7 +201,8 @@ export default function Room() {
             </MessageInputContainer>
           </MessagesSection>
 
-          <UsersSection>
+          <UsersSection className='flex-col justify-between'>
+            <div className="flex-col">
             <Typography variant="h6">Active Users</Typography>
             <List>
               {activeUsers.map((user, index) => (
@@ -210,10 +211,11 @@ export default function Room() {
                 </ListItem>
               ))}
             </List>
+            </div>
             <Button
               variant="outlined"
               color="secondary"
-              onClick={handleLeaveRoom} // Button to leave room
+              onClick={handleLeaveRoom}
             >
               Leave Room
             </Button>

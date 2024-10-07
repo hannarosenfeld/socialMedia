@@ -81,7 +81,6 @@ const roomReducer = (state = initialState, action) => {
             };
         
          case LEAVE_ROOM:
-            console.log("🫎 in leave room", action)
             const chatroom = state.allRooms[action.roomId];
             const leavingUser = action.userId
 
@@ -89,8 +88,6 @@ const roomReducer = (state = initialState, action) => {
                 removeUserFromRoom(chatroom.id, leavingUser)
 
                 const currentUsers = { ...chatroom.users };
-                console.log("💖 current users in reducer: ", currentUsers)
-
                 delete currentUsers[leavingUser]
                 
                 return {
