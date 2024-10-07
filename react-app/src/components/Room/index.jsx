@@ -21,6 +21,7 @@ import {
 } from '../../services/roomService';
 import { enterRoomAction, leaveRoomAction } from '../../store/room.js';
 
+
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
@@ -78,6 +79,8 @@ export default function Room() {
   const [activeUsers, setActiveUsers] = useState([]);
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
+  const audioRef = useRef(new Audio('../../../public/message-13716.mp3'));
+
 
   useEffect(() => {
     try {
@@ -97,11 +100,19 @@ export default function Room() {
           if (users) setActiveUsers(users);
   
           unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
-            setMessages(newMessages);
-  
-            if (messagesEndRef.current) {
-              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
+            setMessages((prevMessages) => {
+              const updatedMessages = newMessages; // This gets the new messages
+              
+              // Check if the length of messages has increased
+              if (prevMessages.length < updatedMessages.length) {
+                // Scroll to the bottom if new messages are added
+                audioRef.current.play();
+                if (messagesEndRef.current) {
+                  messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+              return updatedMessages; // Update messages state
+            });
           });
   
           setIsLoading(false);
@@ -136,11 +147,6 @@ export default function Room() {
       try {
         await addMessage(currentRoom.id, message);
         setInput('');
-  
-        // Scroll to bottom after sending message
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
       } catch (error) {
         console.error('Error sending message:', error);
       }
