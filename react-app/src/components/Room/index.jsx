@@ -76,7 +76,6 @@ export default function Room() {
   const sessionUser = useSelector((state) => state.session.user);
   const [loading, setIsLoading] = useState(true);
   const [activeUsers, setActiveUsers] = useState([]);
-  const roomIdRef = useRef(null);
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
 
@@ -122,7 +121,8 @@ export default function Room() {
   }, [currentRoom, sessionUser]);
 
   const handleSendMessage = async () => {
-    if (input.trim() && roomIdRef.current) {
+    console.log("🐱 in handle send message")
+    if (input.trim() && currentRoom && !loading) {
       const message = {
         content: input,
         sender: {
@@ -134,7 +134,7 @@ export default function Room() {
       };
 
       try {
-        await addMessage(roomIdRef.current, message);
+        await addMessage(currentRoom.id, message);
         setInput('');
       } catch (error) {
         console.error('Error sending message:', error);
