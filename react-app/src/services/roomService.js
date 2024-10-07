@@ -47,18 +47,6 @@ export const removeUserFromRoom = async (roomId, userId) => {
     }
 };
 
-export const fetchRoomByName = async (roomName) => {
-    const roomsCollectionRef = collection(db, 'rooms');
-    const q = query(roomsCollectionRef, where('name', '==', roomName.toLowerCase()));
-    const roomSnapshot = await getDocs(q);
-    if (!roomSnapshot.empty) {
-        return { id: roomSnapshot.docs[0].id, ...roomSnapshot.docs[0].data() };
-    } else {
-        console.log("Room not found");
-        return null;
-    }
-};
-
 export const fetchRooms = async () => {
     const roomsCollectionRef = collection(db, 'rooms');
     const roomsSnapshot = await getDocs(roomsCollectionRef);
@@ -94,19 +82,10 @@ export const addUserToRoom = async (roomId, user) => {
         return;
     }
 
-    // Ensure the user object has all necessary fields defined
-    const userWithDefaults = {
-        uid: user.uid || "",
-        username: user.username || "Anonymous", // Provide a default username
-        color: user.color || "defaultColor", // Provide a default color
-        // Add any other default properties if needed
-    };
-
     try {
         const roomDocRef = doc(db, "rooms", roomId);
-        // Update the users array to include the new user
         await updateDoc(roomDocRef, {
-            users: arrayUnion(userWithDefaults)
+            users: arrayUnion(user)
         });
         console.log('User added to room successfully');
     } catch (error) {
@@ -201,6 +180,7 @@ export const listenForMessages = (roomId, callback) => {
 };
 
 export const fetchRoomUsers = async (roomId) => {
+    console.log(" 🐸in fetch room users ", roomId)
     if (!roomId) {
         console.error("Invalid room ID.");
         return null;
@@ -211,8 +191,9 @@ export const fetchRoomUsers = async (roomId) => {
         const roomSnapshot = await getDoc(roomDocRef);
         
         if (roomSnapshot.exists()) {
-            const roomData = roomSnapshot.data();
-            return roomData.users || []; // Return the list of users in the room
+            const roomData = await roomSnapshot.data();
+            console.log("🦄", roomData)
+            return roomData.users || [];
         } else {
             console.log("No such room!");
             return null;

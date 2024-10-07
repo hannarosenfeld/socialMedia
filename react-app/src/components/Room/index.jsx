@@ -16,12 +16,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
   listenForUserUpdates,
-  fetchRoomByName,
   removeUserFromRoom,
   addMessage,
   listenForMessages,
+  fetchRoomUsers,
 } from '../../services/roomService';
-import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
+import { enterRoomAction, leaveRoomThunk } from '../../store/room.js';
 import { getRoomUserData } from '../../services/userService';
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
@@ -81,84 +81,52 @@ export default function Room() {
   const roomIdRef = useRef(null);
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
-  // Listen for user updates
   useEffect(() => {
-    if (currentRoom && currentRoom.id) {
-      const unsubscribeUserUpdates = listenForUserUpdates(currentRoom.id, (updatedUsers) => {
-        console.log("Updated users:", updatedUsers); // Check if this is triggered correctly
-        setActiveUsers(updatedUsers);
-      });
-    
-      return () => {
-        unsubscribeUserUpdates();
-      };
+    try {
+      dispatch(enterRoomAction(roomName, sessionUser));
+    } catch (error) {
+      console.log(error);
     }
-  }, [currentRoom]);
+  }, [roomName, sessionUser, dispatch]);
 
-  // Fetch room data
+
   useEffect(() => {
-    const fetchRoomData = async () => {
-      try {
-        const fetchedRoom = await fetchRoomByName(roomName.split('-').join(' '));
-        roomIdRef.current = fetchedRoom.id;
-
-        await dispatch(enterRoomThunk(fetchedRoom, sessionUser));
-
-        const unsubscribeMessages = listenForMessages(fetchedRoom.id, (newMessages) => {
-          setMessages(newMessages);
-          // Scroll down on the first load
-          if (isFirstLoad && messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-            setIsFirstLoad(false); // Set first load to false after scrolling
-          }
-        });
-
-        return () => {
-          unsubscribeMessages();
-        };
-      } catch (err) {
-        console.error('Error fetching room: ', err);
-      } finally {
-        setIsLoading(false);
+    let unsubscribeMessages = null;
+  
+    const fetchData = async () => {
+      if (currentRoom && currentRoom.id) {
+        try {
+          const users = await fetchRoomUsers(currentRoom.id);
+          console.log("🦄 Fetched users: ", users);
+  
+          if (users) setActiveUsers(users);
+  
+          unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
+            setMessages(newMessages);
+  
+            if (messagesEndRef.current) {
+              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+          });
+  
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error fetching users or setting up messages:", error);
+        }
       }
     };
-
-    fetchRoomData();
-
+  
+    fetchData();
+  
     return () => {
-      if (roomIdRef.current) {
-        dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
       }
     };
-  }, [dispatch, roomName, sessionUser, isFirstLoad]);
+  }, [currentRoom, sessionUser]);
+  
 
-  // Fetch active users when currentRoom changes
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (currentRoom && currentRoom.users.length) {
-        const usersDataPromises = currentRoom.users.map(async (user) => {
-          const userData = await getRoomUserData(user);
-          return { user, ...userData };
-        });
-
-        const usersData = await Promise.all(usersDataPromises);
-        setActiveUsers(usersData);
-      }
-    };
-
-    fetchUserData();
-  }, [currentRoom]);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    if (!isFirstLoad && messagesEndRef.current) { // Skip scrolling on first load
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, isFirstLoad]);
-
-  // Send message handler
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
       const message = {

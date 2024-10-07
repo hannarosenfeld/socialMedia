@@ -10,13 +10,11 @@ const getAllRoomsAction = (rooms) => ({
     rooms,
 });
 
-
-export const enterRoomAction = (roomId, user) => ({
+export const enterRoomAction = (roomName, user) => ({
     type: ENTER_ROOM,
-    roomId,
+    roomName,
     user
 });
-
 
 export const leaveRoomAction = (roomId, userId) => ({
     type: LEAVE_ROOM,
@@ -45,20 +43,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
- 
-export const enterRoomThunk = (room, user) => async (dispatch) => {
-    const roomId = room.id
-    const userAlreadyInRoom = room.users ? room.users.find(u => u.uid === user.uid) : false
-    try {
-        if (!userAlreadyInRoom) await addUserToRoom(roomId, user);
-        const users = await fetchRoomUsers(roomId);
-
-        dispatch(enterRoomAction(roomId, user));
-    } catch (error) {
-        console.error("Error entering room:", error);
-    }
-};
-
 
 export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
     try {
@@ -75,34 +59,30 @@ const initialState = {
     currentRoom: null,
 };
 
-// Reducer
 const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            room = state.allRooms[action.roomId];
-            const users = room.users;
-            // Convert room.users array to an object with uid as the key
-            const usersUIDArray = users.map(user => user.uid)
-            console.log("🐙 in enter room action", action, users, usersUIDArray)
+            console.log("🐹", action)
+            const user = action.user
+            const roomName = action.roomName.split("-").join(" ")
+            const roomsArray = Object.values(state.allRooms)
+            const room = roomsArray.find(room => room.name === roomName)
+            const userAlreadyInRoom = room.users ? Object.values(room.users).find(e => e === user.uid) : false
+            
+            if (!userAlreadyInRoom) {
+                addUserToRoom(room.id, user);
+                room.users.push(user.uid)
+            }
         
-            const convertedRoom = {
-                id: room.id,
-                name: room.name,
-                messages: room.messages,
-                users: usersUIDArray
-            };
-        
-            // Return the new state with the updated room
             return {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [room.id]: convertedRoom // Update the room with the new user object
+                    [room.id]: room
                 },
                 currentRoom: {
-                    ...state.currentRoom,
-                    users: usersUIDArray
+                    ...room
                 }                
             };
         
