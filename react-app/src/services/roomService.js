@@ -169,8 +169,6 @@ export const addMessage = async (roomId, message) => {
       const roomSnapshot = await getDoc(roomDocRef);
       const roomData = roomSnapshot.data();
 
-      console.log("💖", roomData)
-
       // Check if the messages array exceeds 100 messages
       if (roomData.messages && roomData.messages.length >= 100) {
           // Remove the oldest message

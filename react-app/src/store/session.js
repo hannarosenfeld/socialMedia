@@ -26,7 +26,6 @@ export const removeUser = () => ({
 export default function reducer(state = initialState, action) {
     switch (action.type) {
         case SET_USER:
-            console.log("😜", action.payload)
             return { ...state, user: action.payload }; // Only serializable data is stored
         case REMOVE_USER:
             return { ...state, user: null }; // Clear user on removal

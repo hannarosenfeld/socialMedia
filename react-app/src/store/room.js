@@ -40,7 +40,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
  
 export const enterRoomThunk = (room, user) => async (dispatch) => {
     const roomId = room.id
-    console.log("🐳",room)
     const userAlreadyInRoom = room.users ? room.users.find(u => u.uid === user.uid) : false
     try {
         // Add user to the room

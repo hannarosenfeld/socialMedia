@@ -17,7 +17,6 @@ export const removeUser = () => ({
 
 // Thunk to update user info in Firebase and state
 export const editUserThunk = (sessionUser, updatedData) => async (dispatch) => {
-  console.log("💄", user, updatedData)
   try {
     // Update user data in Firestore
     await setDoc(doc(db, "users", sessionUser.id), updatedData, { merge: true });
