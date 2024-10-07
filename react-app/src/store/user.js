@@ -1,6 +1,5 @@
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/firebase.config";
-import { updateUsernameInChatrooms } from "../services/userService";
 
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
@@ -25,11 +24,6 @@ export const editUserThunk = (sessionUser, updatedData) => async (dispatch) => {
     // Update user data in Firestore
     await setDoc(doc(db, "users", sessionUser.uid), user, { merge: true });
     console.log("User data saved successfully!");
-
-    // If username is updated, update it in chatrooms
-    if (updatedData.username) {
-      await updateUsernameInChatrooms(user.uid, updatedData.username);  // Use user.uid
-    }
 
     // Dispatch Redux action to update state
     dispatch(setUser(user));

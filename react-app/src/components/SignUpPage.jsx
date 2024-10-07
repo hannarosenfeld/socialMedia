@@ -53,12 +53,13 @@ const SignUpPage = () => {
     }
   };
 
-  // Function to save username in Firestore
+  // Function to save username in Firestore, with a default color of black
   const saveUsername = async (userId) => {
     try {
       await setDoc(doc(db, "users", userId), {
         username: userName,
         email: email,
+        color: "#000000" // Default color set to black
       });
     } catch (error) {
       console.error("Error saving username to Firestore:", error);

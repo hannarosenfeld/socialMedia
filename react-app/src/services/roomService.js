@@ -94,8 +94,6 @@ export const addUserToRoom = async (roomId, user) => {
 };
 
 export const sendMessageToRoom = async (roomId, message) => {
-    console.log("Sending message to room:", roomId, message);
-
     if (!roomId || !message) {
         console.error("Invalid room ID or message data.");
         return;
@@ -124,8 +122,6 @@ export const sendMessageToRoom = async (roomId, message) => {
 };
 
 export const addMessage = async (roomId, message) => {
-  console.log("Sending message to room:", roomId, message);
-
   if (!roomId || !message) {
       console.error("Invalid room ID or message data.");
       return;

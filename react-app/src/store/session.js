@@ -13,7 +13,7 @@ export const setUser = (user) => ({
         uid: user.uid, // Store only the UID
         email: user.email, // Store other fields you need
         username: user.username, // Example: Store display name if available
-        color: user.color
+        color: user.color 
         // Add more fields as needed
     },
 });
