@@ -21,7 +21,6 @@ import {
 } from '../../services/roomService';
 import { enterRoomAction, leaveRoomAction } from '../../store/room.js';
 
-
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
@@ -81,49 +80,38 @@ export default function Room() {
   const currentRoom = useSelector((state) => state.room.currentRoom);
   const audioRef = useRef(new Audio('../../../public/message-13716.mp3'));
 
-
   useEffect(() => {
-    try {
-      dispatch(enterRoomAction(roomName, sessionUser));
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(enterRoomAction(roomName, sessionUser));
   }, [roomName, dispatch, sessionUser]);
 
   useEffect(() => {
     let unsubscribeMessages = null;
-  
+
     const fetchData = async () => {
       if (currentRoom && currentRoom.id) {
         try {
           const users = await fetchRoomUsers(currentRoom.id);
           if (users) setActiveUsers(users);
-  
+
           unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
             setMessages((prevMessages) => {
-              const updatedMessages = newMessages; // This gets the new messages
-              
               // Check if the length of messages has increased
-              if (prevMessages.length < updatedMessages.length) {
-                // Scroll to the bottom if new messages are added
+              if (prevMessages.length < newMessages.length) {
                 audioRef.current.play();
-                if (messagesEndRef.current) {
-                  messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-                }
               }
-              return updatedMessages; // Update messages state
+              return newMessages; // Update messages state
             });
           });
-  
+
           setIsLoading(false);
         } catch (error) {
           console.error("Error fetching users or setting up messages:", error);
         }
       }
     };
-  
+
     fetchData();
-  
+
     return () => {
       if (unsubscribeMessages) {
         unsubscribeMessages();
@@ -131,8 +119,14 @@ export default function Room() {
     };
   }, [currentRoom, sessionUser]);
 
+  // Scroll to the bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   const handleSendMessage = async () => {
-    console.log("🐱 in handle send message")
     if (input.trim() && currentRoom && !loading) {
       const message = {
         content: input,
@@ -143,7 +137,7 @@ export default function Room() {
         },
         timestamp: new Date().toISOString(),
       };
-  
+
       try {
         await addMessage(currentRoom.id, message);
         setInput('');
@@ -152,7 +146,6 @@ export default function Room() {
       }
     }
   };
-  
 
   const handleLeaveRoom = () => {
     dispatch(leaveRoomAction(currentRoom.id, sessionUser.uid));
@@ -216,14 +209,14 @@ export default function Room() {
 
           <UsersSection className='flex-col justify-between'>
             <div className="flex-col">
-            <Typography variant="h6">Active Users</Typography>
-            <List>
-              {activeUsers.map((user, index) => (
-                <ListItem key={index}>
-                  <ListItemText primary={user.username} />
-                </ListItem>
-              ))}
-            </List>
+              <Typography variant="h6">Active Users</Typography>
+              <List>
+                {activeUsers.map((user, index) => (
+                  <ListItem key={index}>
+                    <ListItemText primary={user.username} />
+                  </ListItem>
+                ))}
+              </List>
             </div>
             <Button
               variant="outlined"
