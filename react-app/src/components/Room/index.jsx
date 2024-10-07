@@ -188,6 +188,7 @@ export default function Room() {
             <MessageInputContainer>
               <MessageInput
                 label="Type your message..."
+                autoComplete="off"
                 variant="outlined"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
