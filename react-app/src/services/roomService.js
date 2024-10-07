@@ -3,14 +3,15 @@ import { db, firestore } from '../firebase/firebase.config'; // Adjust the path 
 
 export const listenForUserUpdates = (roomId, callback) => {
     return firestore
-      .collection('rooms')
-      .doc(roomId)
-      .onSnapshot((snapshot) => {
-        const roomData = snapshot.data();
-        callback(roomData.users); // Assuming users are stored in roomData.users
-      });
-  };
-  
+       .collection('rooms')
+       .doc(roomId)
+       .onSnapshot((snapshot) => {
+          console.log("Snapshot received:", snapshot.data()); // Debugging log
+          const roomData = snapshot.data();
+          callback(roomData?.users || []); // Check for null or undefined roomData
+       });
+ };
+ 
 
 export const removeUserFromRoom = async (roomId, userId) => {
     if (!roomId || !userId) {
@@ -105,7 +106,7 @@ export const addUserToRoom = async (roomId, user) => {
         const roomDocRef = doc(db, "rooms", roomId);
         // Update the users array to include the new user
         await updateDoc(roomDocRef, {
-            users: arrayUnion(userWithDefaults) // Use arrayUnion to add the user
+            users: arrayUnion(userWithDefaults)
         });
         console.log('User added to room successfully');
     } catch (error) {

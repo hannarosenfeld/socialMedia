@@ -29,8 +29,6 @@ const EditProfileForm = () => {
 
     // Dispatch the editUserThunk to update Firebase and session state
     dispatch(editUserThunk(sessionUser, updatedData));
-
-    console.log('Changes saved:', updatedData);
   };
 
   return (

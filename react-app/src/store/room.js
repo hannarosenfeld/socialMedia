@@ -10,6 +10,14 @@ const getAllRoomsAction = (rooms) => ({
     rooms,
 });
 
+
+export const enterRoomAction = (roomId, user) => ({
+    type: ENTER_ROOM,
+    roomId,
+    user
+});
+
+
 export const leaveRoomAction = (roomId, userId) => ({
     type: LEAVE_ROOM,
     roomId,
@@ -42,21 +50,10 @@ export const enterRoomThunk = (room, user) => async (dispatch) => {
     const roomId = room.id
     const userAlreadyInRoom = room.users ? room.users.find(u => u.uid === user.uid) : false
     try {
-        // Add user to the room
         if (!userAlreadyInRoom) await addUserToRoom(roomId, user);
-        
-        // Fetch all users in the room from Firebase
         const users = await fetchRoomUsers(roomId);
 
-        const roomData = {
-            roomId,
-            users,
-        };
-
-        dispatch({
-            type: ENTER_ROOM,
-            payload: roomData,
-        });
+        dispatch(enterRoomAction(roomId, user));
     } catch (error) {
         console.error("Error entering room:", error);
     }
@@ -83,11 +80,11 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            room = state.allRooms[action.payload.roomId];
-            const users = action.payload.users;
-        
+            room = state.allRooms[action.roomId];
+            const users = room.users;
             // Convert room.users array to an object with uid as the key
             const usersUIDArray = users.map(user => user.uid)
+            console.log("🐙 in enter room action", action, users, usersUIDArray)
         
             const convertedRoom = {
                 id: room.id,
@@ -112,14 +109,8 @@ const roomReducer = (state = initialState, action) => {
          case LEAVE_ROOM:
             room = state.allRooms[action.roomId];
             if (room) {
-                // Clone the current room's users object
                 const currentUsers = { ...room.users };
-
-                // Remove the user from the users object
-                console.log(currentUsers)
-                // delete currentUsers.find(user => user.uid == action.userId);
-
-                // Handle if current room was left by all users
+                console.log("💖 current users in reducer: ", currentUsers)
                 return {
                     ...state,
                     allRooms: {
@@ -134,18 +125,31 @@ const roomReducer = (state = initialState, action) => {
             }
             return state;
 
-            case GET_ALL_ROOMS:
-                const allRooms = {};
+        case GET_ALL_ROOMS:
+            const rooms = action.rooms
+            const allRooms = {};
 
-                action.rooms.forEach((room) => {
-                    allRooms[room.id] = {
-                        ...room,
-                    };
-                });
-                return {
-                    ...state,
-                    allRooms,
+            rooms.forEach((room) => {
+                const roomUsers = room.users
+                const roomUsersUIDArray = roomUsers.map(user => user.uid)
+
+                room.users = roomUsersUIDArray
+            });
+
+            action.rooms.forEach((room) => {
+                allRooms[room.id] = {
+                    ...room,
                 };
+            });
+
+            return {
+                ...state,
+                allRooms: {
+                    ...state.allRooms,
+                    ...allRooms
+                }
+            }
+
             
         case ADD_ROOM:
             return {

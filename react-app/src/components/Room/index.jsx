@@ -132,7 +132,7 @@ export default function Room() {
         dispatch(leaveRoomThunk({ roomId: roomIdRef.current, userId: sessionUser.uid }));
       }
     };
-  }, [dispatch, roomName, sessionUser, isFirstLoad]); // Add isFirstLoad to dependencies
+  }, [dispatch, roomName, sessionUser, isFirstLoad]);
 
   // Fetch active users when currentRoom changes
   useEffect(() => {
