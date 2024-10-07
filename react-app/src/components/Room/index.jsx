@@ -13,16 +13,13 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-  listenForUserUpdates,
-  removeUserFromRoom,
   addMessage,
   listenForMessages,
   fetchRoomUsers,
 } from '../../services/roomService';
-import { enterRoomAction, leaveRoomThunk } from '../../store/room.js';
-import { getRoomUserData } from '../../services/userService';
+import { enterRoomAction, leaveRoomAction } from '../../store/room.js';
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -73,6 +70,7 @@ const LoadingContainer = styled(Box)({
 export default function Room() {
   const dispatch = useDispatch();
   const { roomName } = useParams();
+  const history = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const sessionUser = useSelector((state) => state.session.user);
@@ -88,8 +86,7 @@ export default function Room() {
     } catch (error) {
       console.log(error);
     }
-  }, [roomName, sessionUser, dispatch]);
-
+  }, [roomName, dispatch, sessionUser]);
 
   useEffect(() => {
     let unsubscribeMessages = null;
@@ -98,8 +95,6 @@ export default function Room() {
       if (currentRoom && currentRoom.id) {
         try {
           const users = await fetchRoomUsers(currentRoom.id);
-          console.log("🦄 Fetched users: ", users);
-  
           if (users) setActiveUsers(users);
   
           unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
@@ -125,7 +120,6 @@ export default function Room() {
       }
     };
   }, [currentRoom, sessionUser]);
-  
 
   const handleSendMessage = async () => {
     if (input.trim() && roomIdRef.current) {
@@ -146,6 +140,11 @@ export default function Room() {
         console.error('Error sending message:', error);
       }
     }
+  };
+
+  const handleLeaveRoom = () => {
+    dispatch(leaveRoomAction(currentRoom.id, sessionUser.uid));
+    history('/');
   };
 
   if (loading) {
@@ -211,6 +210,13 @@ export default function Room() {
                 </ListItem>
               ))}
             </List>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleLeaveRoom} // Button to leave room
+            >
+              Leave Room
+            </Button>
           </UsersSection>
         </ChatContainer>
       )}

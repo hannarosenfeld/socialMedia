@@ -43,16 +43,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-
-export const leaveRoomThunk = ({ roomId, userId }) => async (dispatch) => {
-    try {
-        await removeUserFromRoom(roomId, userId);
-        dispatch(leaveRoomAction(roomId, userId));
-    } catch (error) {
-        console.error("Error leaving room:", error);
-    }
-};
-
 // Initial State
 const initialState = {
     allRooms: {},
@@ -63,44 +53,56 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            console.log("🐹", action)
             const user = action.user
             const roomName = action.roomName.split("-").join(" ")
             const roomsArray = Object.values(state.allRooms)
             const room = roomsArray.find(room => room.name === roomName)
             const userAlreadyInRoom = room.users ? Object.values(room.users).find(e => e === user.uid) : false
+            let updatedUsers = [...room.users]
             
             if (!userAlreadyInRoom) {
                 addUserToRoom(room.id, user);
-                room.users.push(user.uid)
+                updatedUsers.push(user.uid)
             }
         
             return {
                 ...state,
                 allRooms: {
                     ...state.allRooms,
-                    [room.id]: room
+                    [room.id]: {
+                        ...room,
+                        users: updatedUsers
+                    }
                 },
                 currentRoom: {
-                    ...room
+                    ...room,
+                    users: updatedUsers
                 }                
             };
         
          case LEAVE_ROOM:
-            room = state.allRooms[action.roomId];
-            if (room) {
-                const currentUsers = { ...room.users };
+            console.log("🫎 in leave room", action)
+            const chatroom = state.allRooms[action.roomId];
+            const leavingUser = action.userId
+
+            if (chatroom) {
+                removeUserFromRoom(chatroom.id, leavingUser)
+
+                const currentUsers = { ...chatroom.users };
                 console.log("💖 current users in reducer: ", currentUsers)
+
+                delete currentUsers[leavingUser]
+                
                 return {
                     ...state,
                     allRooms: {
                         ...state.allRooms,
-                        [action.roomId]: {
-                            ...room,
+                        [chatroom.id]: {
+                            ...chatroom,
                             users: currentUsers,
                         },
                     },
-                    currentRoom: state.currentRoom?.id === action.roomId ? null : state.currentRoom,
+                    currentRoom: null
                 };
             }
             return state;

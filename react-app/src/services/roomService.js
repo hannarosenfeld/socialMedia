@@ -180,7 +180,6 @@ export const listenForMessages = (roomId, callback) => {
 };
 
 export const fetchRoomUsers = async (roomId) => {
-    console.log(" 🐸in fetch room users ", roomId)
     if (!roomId) {
         console.error("Invalid room ID.");
         return null;
@@ -192,7 +191,6 @@ export const fetchRoomUsers = async (roomId) => {
         
         if (roomSnapshot.exists()) {
             const roomData = await roomSnapshot.data();
-            console.log("🦄", roomData)
             return roomData.users || [];
         } else {
             console.log("No such room!");
