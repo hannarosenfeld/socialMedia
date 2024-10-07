@@ -10,15 +10,19 @@ import Room from './components/Room';
 import ProfilePage from './pages/userProfile.jsx';
 import EditProfile from './pages/editProfile.jsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser, removeUser } from './store/session'; // Import session actions
-import { getUserData } from './services/userService'; // Import the getUserData function
-import { addRoomThunk, getAllRoomsThunk } from './store/room.js'; // Import thunks
+import { setUser, removeUser } from './store/session';
+import { getUserData } from './services/userService';
+import { getAllRoomsThunk } from './store/room.js';
+import './styles/globals.css';
+
+
 
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user); // Get sessionUser from Redux store
   const [isLoaded, setIsLoaded] = useState(false);
-  const chatRoomsObj = useSelector((state) => state.room.allRooms);
+
+
   useEffect(() => {
     const fetchRooms = async () => {
       await dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
@@ -49,9 +53,6 @@ function App() {
   if (!isLoaded) {
     return <div>Loading...</div>; 
   }
-
-  // Format username for URL
-  const formattedUsername = sessionUser ? sessionUser.username.replace(/\s+/g, '-') : 'Guest';
 
   return (
     <>

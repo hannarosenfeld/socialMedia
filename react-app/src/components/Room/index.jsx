@@ -186,10 +186,14 @@ export default function Room() {
               {messages.map((message, index) => (
                 <ListItem key={index}>
                   <ListItemText
-                    primary={message?.content}
+                    primary={
+                      <span className="text-sm md:text-base"> {/* Smaller text for mobile */}
+                        {message?.content}
+                      </span>
+                    }
                     secondary={
-                      <span>
-                        <span style={{ color: message?.sender?.color || "black", fontSize: '0.75rem' }}>
+                      <span className="text-xs md:text-sm"> {/* Smaller text for mobile */}
+                        <span style={{ color: message?.sender?.color || "black" }}>
                           {message?.sender?.username}
                         </span>
                         {' - '}
@@ -201,10 +205,10 @@ export default function Room() {
               ))}
               <div ref={messagesEndRef} />
             </MessageList>
-
+  
             <MessageInputContainer>
               <MessageInput
-                label="Type your message..."
+                label={<span className="text-sm md:text-sm">Type your message...</span>} // Adjust label size
                 autoComplete="off"
                 variant="outlined"
                 value={input}
@@ -222,20 +226,20 @@ export default function Room() {
                 variant="contained"
                 color="primary"
                 onClick={handleSendMessage}
-                style={{ fontSize: '0.875rem' }} // Adjust button font size for mobile
+                className="text-sm md:text-base" // Adjust button font size for mobile
               >
                 Send
               </Button>
             </MessageInputContainer>
           </MessagesSection>
-
+  
           <UsersSection className='flex-col justify-between'>
             <div className="flex-col">
-              <Typography variant="h6">Active Users</Typography>
+              <Typography variant="h6" className="text-sm md:text-base">Active Users</Typography>
               <List>
                 {activeUsers.map((user, index) => (
                   <ListItem key={index}>
-                    <ListItemText primary={user.username} />
+                    <ListItemText primary={<span className="text-sm md:text-base">{user.username}</span>} /> {/* Smaller text for mobile */}
                   </ListItem>
                 ))}
               </List>
@@ -244,6 +248,7 @@ export default function Room() {
               variant="outlined"
               color="secondary"
               onClick={handleLeaveRoom}
+              className="text-sm md:text-base" // Adjust button font size for mobile
             >
               Leave Room
             </Button>
@@ -252,4 +257,4 @@ export default function Room() {
       )}
     </Container>
   );
-}
+}  
