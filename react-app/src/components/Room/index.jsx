@@ -11,7 +11,7 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   flex: 1,
-  height: '90vh',
+  height: '100vh', // Set to full viewport height
   width: '100%',
 }));
 
@@ -19,23 +19,25 @@ const MessagesSection = styled(Box)({
   flex: 3,
   display: 'flex',
   flexDirection: 'column',
+  overflowY: 'auto', // Allow scrolling for messages
 });
 
 const MessageList = styled(List)(({ theme }) => ({
   flex: 1,
+  padding: theme.spacing(1), // Adjust padding for compactness
   overflowY: 'auto',
-  padding: theme.spacing(2),
 }));
 
 const MessageInputContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   borderTop: '1px solid #ccc',
 }));
 
 const MessageInput = styled(TextField)(({ theme }) => ({
   flex: 1,
-  marginRight: theme.spacing(2),
+  marginRight: theme.spacing(1),
+  fontSize: '0.875rem', // Smaller text for mobile
 }));
 
 const UsersSection = styled(Box)(({ theme }) => ({
@@ -43,7 +45,9 @@ const UsersSection = styled(Box)(({ theme }) => ({
   borderLeft: '1px solid #ccc',
   display: 'flex',
   flexDirection: 'column',
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
+  overflowY: 'auto', // Allow scrolling for active users
+  justifyContent: 'space-between', // Add spacing between items
 }));
 
 const LoadingContainer = styled(Box)({
@@ -185,7 +189,7 @@ export default function Room() {
                     primary={message?.content}
                     secondary={
                       <span>
-                        <span style={{ color: message?.sender?.color || "black" }}>
+                        <span style={{ color: message?.sender?.color || "black", fontSize: '0.75rem' }}>
                           {message?.sender?.username}
                         </span>
                         {' - '}
@@ -210,11 +214,15 @@ export default function Room() {
                     handleSendMessage();
                   }
                 }}
+                InputProps={{
+                  style: { fontSize: '0.875rem' }, // Adjust input font size for mobile
+                }}
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSendMessage}
+                style={{ fontSize: '0.875rem' }} // Adjust button font size for mobile
               >
                 Send
               </Button>
