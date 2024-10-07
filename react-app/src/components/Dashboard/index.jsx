@@ -14,8 +14,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      await dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
-      setLoading(false);
+      await dispatch(getAllRoomsThunk()).then(setLoading(false));
     };
     fetchRooms();
   }, [dispatch]);
@@ -47,7 +46,7 @@ const Dashboard = () => {
 
   return (
     <>
-      {!loading ? (
+      {!loading  ? (
         <Container maxWidth="lg" className='page-wrapper'>
           <div className="room-container" style={{ float: "right", display: "flex", flexDirection: "column", padding: "1em", gap: "0.3em" }}>
             {chatRooms.map(chatroom => (
