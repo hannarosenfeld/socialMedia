@@ -1,25 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import {
-  TextField,
-  Button,
-  Container,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  CircularProgress,
-  Box,
-} from '@mui/material';
+import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  addMessage,
-  listenForMessages,
-  fetchRoomUsers,
-} from '../../services/roomService';
+import { addMessage, listenForMessages, fetchRoomUsers } from '../../services/roomService';
 import { enterRoomAction, leaveRoomAction } from '../../store/room.js';
+import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -78,7 +64,25 @@ export default function Room() {
   const [activeUsers, setActiveUsers] = useState([]);
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
-  const audioRef = useRef(new Audio('../../../public/message-13716.mp3'));
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const fetchAudioURL = async () => {
+      const storage = getStorage(); // Initialize Firebase Storage
+      const soundRef = ref(storage, 'gs://relay--social.appspot.com/message-13716.mp3'); // Reference to your file
+
+      try {
+        // Get the download URL for the audio file
+        const url = await getDownloadURL(soundRef);
+        audioRef.current = new Audio(url); // Set the URL for the audio element
+        audioRef.current.load(); // Preload the sound
+      } catch (error) {
+        console.error("Error fetching audio URL:", error);
+      }
+    };
+
+    fetchAudioURL();
+  }, []); // Empty array ensures this only runs once on component mount
 
   useEffect(() => {
     dispatch(enterRoomAction(roomName, sessionUser));
@@ -96,8 +100,10 @@ export default function Room() {
           unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
             setMessages((prevMessages) => {
               // Check if the length of messages has increased
-              if (prevMessages.length < newMessages.length) {
-                audioRef.current.play();
+              if (prevMessages.length < newMessages.length && audioRef.current) {
+                audioRef.current.play().catch(error => {
+                  console.error("Audio playback failed:", error);
+                }); // Play sound on new message
               }
               return newMessages; // Update messages state
             });
@@ -141,6 +147,13 @@ export default function Room() {
       try {
         await addMessage(currentRoom.id, message);
         setInput('');
+        
+        // Play sound when sending a message
+        if (audioRef.current) {
+          audioRef.current.play().catch(error => {
+            console.error("Audio playback failed:", error);
+          });
+        }
       } catch (error) {
         console.error('Error sending message:', error);
       }
@@ -184,6 +197,7 @@ export default function Room() {
               ))}
               <div ref={messagesEndRef} />
             </MessageList>
+
             <MessageInputContainer>
               <MessageInput
                 label="Type your message..."
