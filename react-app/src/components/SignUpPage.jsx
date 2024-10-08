@@ -102,15 +102,16 @@ const SignUpPage = () => {
           disabled={loading}
         />
         <TextField
-          label="Username"
-          variant="outlined"
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          disabled={loading}
+            label="Username"
+            variant="outlined"
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            required
+            fullWidth
+            margin="normal"
+            disabled={loading}
+            inputProps={{ maxLength: 36 }} // Set the max length to 36
         />
         <TextField
           label="Password"
