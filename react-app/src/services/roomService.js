@@ -120,49 +120,54 @@ export const sendMessageToRoom = async (roomId, message) => {
         console.error('Error sending message to room: ', error);
     }
 };
-
 export const addMessage = async (roomId, message) => {
-  if (!roomId || !message) {
-      console.error("Invalid room ID or message data.");
-      return;
-  }
+    if (!roomId || !message) {
+        console.error("Invalid room ID or message data.");
+        return;
+    }
 
-  // Sanitize the message object to ensure no undefined values are passed
-  const sanitizedMessage = {
-      content: message.content || "", // Fallback to empty string if undefined
-      sender: {
-          uid: message.sender?.uid || "", // Ensure uid is defined
-          username: message.sender?.username || "Anonymous", // Fallback if username is undefined
-          color: message.sender?.color || "defaultColor" // Fallback to a default color if undefined
-      },
-      timestamp: message.timestamp || new Date().toISOString() // Ensure timestamp is valid
-  };
+    // Sanitize the message object to ensure no undefined values are passed
+    const sanitizedMessage = {
+        content: message.content || "", // Fallback to empty string if undefined
+        sender: {
+            uid: message.sender?.uid || "", // Ensure uid is defined
+            username: message.sender?.username || "Anonymous", // Fallback if username is undefined
+            color: message.sender?.color || "defaultColor" // Fallback to a default color if undefined
+        },
+        timestamp: message.timestamp || new Date().toISOString() // Ensure timestamp is valid
+    };
 
-  try {
-      const roomDocRef = doc(db, "rooms", roomId);
-      
-      // Fetch current room data
-      const roomSnapshot = await getDoc(roomDocRef);
-      const roomData = roomSnapshot.data();
+    try {
+        const roomDocRef = doc(db, "rooms", roomId);
+        
+        // Fetch current room data
+        const roomSnapshot = await getDoc(roomDocRef);
+        const roomData = roomSnapshot.data();
 
-      // Check if the messages array exceeds 100 messages
-      if (roomData.messages && roomData.messages.length >= 100) {
-          // Remove the oldest message
-          roomData.messages = 0 // Remove the first message
-          await updateDoc(roomDocRef, {
-              messages: 0 // Add the new message
-          });
-      } else {
-          // Just add the new message
-          await updateDoc(roomDocRef, {
-              messages: arrayUnion(sanitizedMessage)
-          });
-      }
+        // Check if messages exist and filter out those older than 24 hours
+        if (roomData.messages) {
+            const currentTime = new Date();
+            const updatedMessages = roomData.messages.filter(msg => {
+                const msgTime = new Date(msg.timestamp);
+                // Retain messages that are less than 24 hours old
+                return (currentTime - msgTime) < 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+            });
 
-      console.log('Message sent successfully');
-  } catch (error) {
-      console.error('Error sending message to room: ', error);
-  }
+            // Update the messages in the Firestore document
+            await updateDoc(roomDocRef, {
+                messages: updatedMessages // Set the filtered messages back
+            });
+        }
+
+        // Add the new message
+        await updateDoc(roomDocRef, {
+            messages: arrayUnion(sanitizedMessage)
+        });
+
+        console.log('Message sent successfully');
+    } catch (error) {
+        console.error('Error sending message to room: ', error);
+    }
 };
 
 export const listenForMessages = (roomId, callback) => {

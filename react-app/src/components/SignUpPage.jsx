@@ -20,7 +20,6 @@ const SignUpPage = () => {
     setLoading(true);
 
     try {
-      // Check if the email is already in use
       const emailMethods = await fetchSignInMethodsForEmail(auth, email);
       if (emailMethods.length) {
         throw new Error("Email already in use. Please use a different email.");
