@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { addMessage, listenForMessages, fetchRoomUsers } from '../../services/roomService';
 import { enterRoomAction, leaveRoomAction } from '../../store/room.js';
 import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery for responsive design
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -16,7 +17,7 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const MessagesSection = styled(Box)({
-  flex: 3,
+  flex: 0.7, // Adjust to take 70% of the space
   display: 'flex',
   flexDirection: 'column',
   overflowY: 'auto', // Allow scrolling for messages
@@ -41,13 +42,22 @@ const MessageInput = styled(TextField)(({ theme }) => ({
 }));
 
 const UsersSection = styled(Box)(({ theme }) => ({
-  flex: 1,
+  flex: 0.15, // Takes 15% of the width
   borderLeft: '1px solid #ccc',
   display: 'flex',
   flexDirection: 'column',
   padding: theme.spacing(1),
-  overflowY: 'auto', // Allow scrolling for active users
-  justifyContent: 'space-between', // Add spacing between items
+  overflowY: 'auto',
+  justifyContent: 'space-between',
+}));
+
+const LeftTabSection = styled(Box)(({ theme }) => ({
+  flex: 0.15, // Same size as UsersSection
+  borderRight: '1px solid #ccc', // Border on the right for symmetry
+  display: 'flex',
+  flexDirection: 'column',
+  padding: theme.spacing(1),
+  overflowY: 'auto',
 }));
 
 const LoadingContainer = styled(Box)({
@@ -69,6 +79,8 @@ export default function Room() {
   const messagesEndRef = useRef(null);
   const currentRoom = useSelector((state) => state.room.currentRoom);
   const audioRef = useRef(null);
+
+  const isMobile = useMediaQuery('(max-width: 768px)'); // Detect if the screen width is less than 768px (mobile)
 
   useEffect(() => {
     const fetchAudioURL = async () => {
@@ -181,6 +193,22 @@ export default function Room() {
     <Container maxWidth={false} disableGutters>
       {activeUsers.length > 0 && (
         <ChatContainer>
+          {/* Left Tab Section - Only show on larger screens */}
+          {!isMobile && (
+            <LeftTabSection>
+              <Typography variant="h6" gutterBottom>
+                Chatrooms
+              </Typography>
+              {/* Add content here */}
+              <List>
+                <ListItem>
+                  <ListItemText primary=".... coming soon!! 👩🏻‍🔧" />
+                </ListItem>
+              </List>
+            </LeftTabSection>
+          )}
+
+          {/* Messages Section */}
           <MessagesSection>
             <MessageList>
               {messages.map((message, index) => (
@@ -233,23 +261,18 @@ export default function Room() {
             </MessageInputContainer>
           </MessagesSection>
   
-          <UsersSection className='flex-col justify-between'>
+          {/* Users Section */}
+          <UsersSection>
             <div className="flex-col">
-              <Typography variant="h6" className="text-sm md:text-base">Active Users</Typography>
               <List>
                 {activeUsers.map((user, index) => (
                   <ListItem key={index}>
-                    <ListItemText primary={<span className="text-sm md:text-base">{user.username}</span>} /> {/* Smaller text for mobile */}
+                      <ListItemText primary={user.username} style={{ color: user.color }} />
                   </ListItem>
                 ))}
               </List>
             </div>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={handleLeaveRoom}
-              className="text-sm md:text-base" // Adjust button font size for mobile
-            >
+            <Button variant="contained" color="secondary" onClick={handleLeaveRoom}>
               Leave Room
             </Button>
           </UsersSection>
@@ -257,4 +280,4 @@ export default function Room() {
       )}
     </Container>
   );
-}  
+}
