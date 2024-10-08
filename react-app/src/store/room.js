@@ -48,6 +48,7 @@ export const leaveRoomThunk = (userId) => async (dispatch, getState) => {
     const state = getState();
     const chatroom = state.room.currentRoom;
 
+    console.log("👛 in leave room", userId, chatroom)
 
     if (chatroom) {
         try {

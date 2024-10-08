@@ -4,7 +4,7 @@ import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { addMessage, listenForMessages, fetchRoomUsers } from '../../services/roomService';
-import { enterRoomThunk, leaveRoomAction } from '../../store/room.js';
+import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
 import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery for responsive design
 import { current } from '@reduxjs/toolkit';
@@ -111,7 +111,7 @@ export default function Room() {
     enterRoom();
   
     return () => {
-        handleLeaveRoom();
+      dispatch(leaveRoomThunk(sessionUser.uid));
     };
   }, []);
 
@@ -188,8 +188,8 @@ export default function Room() {
   };
 
   const handleLeaveRoom = () => {
-    dispatch(leaveRoomAction(sessionUser.uid));
-    // history('/');
+    dispatch(leaveRoomThunk(sessionUser.uid));
+    history('/');
   };
 
   if (loading) {
