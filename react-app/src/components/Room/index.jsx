@@ -188,8 +188,8 @@ export default function Room() {
   };
 
   const handleLeaveRoom = () => {
-    dispatch(leaveRoomAction(currentRoom.id, sessionUser.uid));
-    history('/');
+    dispatch(leaveRoomAction(sessionUser.uid));
+    // history('/');
   };
 
   if (loading) {
@@ -204,13 +204,11 @@ export default function Room() {
     <Container maxWidth={false} disableGutters>
       {activeUsers.length > 0 && (
         <ChatContainer>
-          {/* Left Tab Section - Only show on larger screens */}
           {!isMobile && (
             <LeftTabSection>
               <Typography variant="h6" gutterBottom>
                 Chatrooms
               </Typography>
-              {/* Add content here */}
               <List>
                 <ListItem>
                   <ListItemText primary=".... coming soon!! 👩🏻‍🔧" />
@@ -219,19 +217,18 @@ export default function Room() {
             </LeftTabSection>
           )}
 
-          {/* Messages Section */}
           <MessagesSection>
             <MessageList>
               {messages.map((message, index) => (
                 <ListItem key={index}>
                   <ListItemText
                     primary={
-                      <span className="text-sm md:text-base"> {/* Smaller text for mobile */}
+                      <span className="text-sm md:text-base">
                         {message?.content}
                       </span>
                     }
                     secondary={
-                      <span className="text-xs md:text-sm"> {/* Smaller text for mobile */}
+                      <span className="text-xs md:text-sm">
                         <span style={{ color: message?.sender?.color || "black" }}>
                           {message?.sender?.username}
                         </span>
@@ -247,7 +244,7 @@ export default function Room() {
   
             <MessageInputContainer>
               <MessageInput
-                label={<span className="text-sm md:text-sm">Type your message...</span>} // Adjust label size
+                label={<span className="text-sm md:text-sm">Type your message...</span>}
                 autoComplete="off"
                 variant="outlined"
                 value={input}
@@ -258,21 +255,20 @@ export default function Room() {
                   }
                 }}
                 InputProps={{
-                  style: { fontSize: '0.875rem' }, // Adjust input font size for mobile
+                  style: { fontSize: '0.875rem' },
                 }}
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSendMessage}
-                className="text-sm md:text-base" // Adjust button font size for mobile
+                className="text-sm md:text-base"
               >
                 Send
               </Button>
             </MessageInputContainer>
           </MessagesSection>
   
-          {/* Users Section */}
           <UsersSection>
             <div className="flex-col">
               <List>

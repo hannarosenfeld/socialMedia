@@ -76,8 +76,6 @@ function App() {
           </>
         )}
       </Routes>
-      {currentRoom === null && <div>You are not in any room.</div>} {/* Optional: Show message if not in a room */}
-
     </>
   );
 }

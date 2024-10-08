@@ -18,7 +18,6 @@ if (process.env.NODE_ENV !== "production") {
 const root = createRoot(document.getElementById('root'));
 
 root.render(
-  <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
       <ThemeProvider theme={theme}>
@@ -26,5 +25,4 @@ root.render(
       </ThemeProvider>
       </BrowserRouter>
     </Provider>
-  </React.StrictMode>
 );

@@ -16,9 +16,8 @@ export const enterRoomAction = (room, user) => ({
     user,
 });
 
-export const leaveRoomAction = (roomId, userId) => ({
+export const leaveRoomAction = (userId) => ({
     type: LEAVE_ROOM,
-    roomId,
     userId,
 });
 
@@ -45,13 +44,14 @@ export const enterRoomThunk = (roomName, user) => async (dispatch, getState) => 
     }
 };
 
-export const leaveRoomThunk = (roomId, userId) => async (dispatch, getState) => {
+export const leaveRoomThunk = (userId) => async (dispatch, getState) => {
     const state = getState();
-    const chatroom = state.room.allRooms[roomId];
+    const chatroom = state.room.currentRoom;
+
 
     if (chatroom) {
         try {
-            await removeUserFromRoom(chatroom.id, userId).then(dispatch(leaveRoomAction(roomId, userId)));
+            await removeUserFromRoom(chatroom.id, userId).then(dispatch(leaveRoomAction(chatroom.id, userId)));
         } catch (error) {
             console.error("Error removing user from room:", error);
         }
@@ -123,6 +123,7 @@ const roomReducer = (state = initialState, action) => {
             console.log("🐸 in leave room", action)
             const leavingUser = action.userId;
             const updatedChatroom = state.allRooms[action.roomId];
+            
 
             if (updatedChatroom) {
                 const currentUsers = { ...updatedChatroom.users };
