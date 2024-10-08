@@ -26,16 +26,19 @@ function App() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      await dispatch(getAllRoomsThunk()); // Fetch rooms from Firestore
-     };
+        if (sessionUser) {
+            await dispatch(getAllRoomsThunk());
+        }
+    };
     fetchRooms();
-  }, [dispatch]);
+}, [dispatch, sessionUser]);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Fetch additional user data from Firestore
-        const userData = await getUserData(user.uid); // Use user.uid to fetch additional data
+        const userData = await getUserData(user.uid);
           if (userData) {
           dispatch(setUser({ ...user, ...userData })); // Merge Firebase user with additional data
         } else {
@@ -43,13 +46,13 @@ function App() {
         }
       } else {
         console.log("No user is signed in.");
-        dispatch(removeUser());   // Dispatch removal of user from Redux when signed out
+        dispatch(removeUser());  // Dispatch removal of user from Redux when signed out
       }
       setIsLoaded(true);
     });
 
     return () => unsubscribe();
-  }, [dispatch]); // Add dispatch to dependency array
+  }, [dispatch]);
 
   if (!isLoaded) {
     return <div>Loading...</div>; 

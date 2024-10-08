@@ -1,23 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button, Modal, Box, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoomThunk, getAllRoomsThunk } from '../../store/room'; // Import thunks
+import { addRoomThunk } from '../../store/room'; // Import thunks
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const chatRoomsObj = useSelector((state) => state.room.allRooms);
   const chatRooms = Object.values(chatRoomsObj);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomData, setRoomData] = useState({ name: '', description: '' });
-
-  useEffect(() => {
-    const fetchRooms = async () => {
-      await dispatch(getAllRoomsThunk()).then(setLoading(false));
-    };
-    fetchRooms();
-  }, [dispatch]);
 
   const handleAddRoom = () => {
     setIsModalOpen(true);

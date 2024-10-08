@@ -24,9 +24,6 @@ export const removeUserFromRoom = async (roomId, userId) => {
         const roomDoc = await getDoc(roomDocRef); // Fetch current room state
         const currentUsers = roomDoc.data().users;
 
-        console.log("Current users before removal:", currentUsers);
-
-        // Check if the user exists in the currentUsers array
         const userToRemove = currentUsers.find(user => user.uid === userId);
         if (!userToRemove) {
             console.error("User not found in room:", userId);
@@ -34,12 +31,11 @@ export const removeUserFromRoom = async (roomId, userId) => {
         }
 
         await updateDoc(roomDocRef, {
-            users: arrayRemove(userToRemove) // Use the whole user object
-        });
+            users: arrayRemove(userToRemove)
+        });    
 
         console.log('User removed from room successfully');
 
-        // Optionally fetch the updated list of users
         const updatedRoomDoc = await getDoc(roomDocRef);
         console.log("Updated users after removal:", updatedRoomDoc.data().users);
     } catch (error) {

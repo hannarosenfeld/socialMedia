@@ -7,6 +7,7 @@ import { addMessage, listenForMessages, fetchRoomUsers } from '../../services/ro
 import { enterRoomThunk, leaveRoomAction } from '../../store/room.js';
 import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery for responsive design
+import { current } from '@reduxjs/toolkit';
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -110,11 +111,9 @@ export default function Room() {
     enterRoom();
   
     return () => {
-      if (currentRoom && currentRoom.id) {
         handleLeaveRoom();
-      }
     };
-  }, [roomName, sessionUser, dispatch]);
+  }, []);
 
   useEffect(() => {
     let unsubscribeMessages = null;

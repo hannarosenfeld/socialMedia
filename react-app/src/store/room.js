@@ -1,4 +1,4 @@
-import { fetchRooms, addRoom,fetchRoomUsers, addUserToRoom, removeUserFromRoom } from "../services/roomService.js";
+import { fetchRooms, addRoom, fetchRoomUsers, addUserToRoom, removeUserFromRoom } from "../services/roomService.js";
 
 const ADD_ROOM = "room/ADD_ROOM";
 const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
@@ -13,7 +13,7 @@ const getAllRoomsAction = (rooms) => ({
 export const enterRoomAction = (room, user) => ({
     type: ENTER_ROOM,
     room,
-    user
+    user,
 });
 
 export const leaveRoomAction = (roomId, userId) => ({
@@ -45,6 +45,18 @@ export const enterRoomThunk = (roomName, user) => async (dispatch, getState) => 
     }
 };
 
+export const leaveRoomThunk = (roomId, userId) => async (dispatch, getState) => {
+    const state = getState();
+    const chatroom = state.room.allRooms[roomId];
+
+    if (chatroom) {
+        try {
+            await removeUserFromRoom(chatroom.id, userId).then(dispatch(leaveRoomAction(roomId, userId)));
+        } catch (error) {
+            console.error("Error removing user from room:", error);
+        }
+    }
+};
 
 export const addRoomThunk = (roomData) => async (dispatch) => {
     try {
@@ -76,19 +88,20 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
+            console.log("🫎 in enter room", action)
             const user = action.user;
-            const room = action.room;
-        
+            room = action.room;
+
             if (room) {
                 const roomUsersArray = Object.values(room.users);
                 const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
-        
+
                 let updatedUsers = [...roomUsersArray];
-        
+
                 if (!userAlreadyInRoom) {
                     updatedUsers.push(user.uid);
                 }
-        
+
                 return {
                     ...state,
                     allRooms: {
@@ -105,24 +118,22 @@ const roomReducer = (state = initialState, action) => {
                 };
             }
             return state;
-        
-        
-         case LEAVE_ROOM:
-            const chatroom = state.allRooms[action.roomId];
-            const leavingUser = action.userId
 
-            if (chatroom) {
-                removeUserFromRoom(chatroom.id, leavingUser)
+        case LEAVE_ROOM:
+            console.log("🐸 in leave room", action)
+            const leavingUser = action.userId;
+            const updatedChatroom = state.allRooms[action.roomId];
 
-                const currentUsers = { ...chatroom.users };
-                delete currentUsers[leavingUser]
-                
+            if (updatedChatroom) {
+                const currentUsers = { ...updatedChatroom.users };
+                delete currentUsers[leavingUser];
+
                 return {
                     ...state,
                     allRooms: {
                         ...state.allRooms,
-                        [chatroom.id]: {
-                            ...chatroom,
+                        [updatedChatroom.id]: {
+                            ...updatedChatroom,
                             users: currentUsers,
                         },
                     },
@@ -132,14 +143,14 @@ const roomReducer = (state = initialState, action) => {
             return state;
 
         case GET_ALL_ROOMS:
-            const rooms = action.rooms
+            const rooms = action.rooms;
             const allRooms = {};
 
             rooms.forEach((room) => {
-                const roomUsers = room.users
-                const roomUsersUIDArray = roomUsers.map(user => user.uid)
+                const roomUsers = room.users;
+                const roomUsersUIDArray = roomUsers.map(user => user.uid);
 
-                room.users = roomUsersUIDArray
+                room.users = roomUsersUIDArray;
             });
 
             action.rooms.forEach((room) => {
@@ -154,9 +165,8 @@ const roomReducer = (state = initialState, action) => {
                     ...state.allRooms,
                     ...allRooms
                 }
-            }
+            };
 
-            
         case ADD_ROOM:
             return {
                 ...state,
