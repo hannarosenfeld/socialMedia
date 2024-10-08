@@ -19,7 +19,8 @@ import './styles/globals.css';
 
 function App() {  
   const dispatch = useDispatch();
-  const sessionUser = useSelector((state) => state.session.user); // Get sessionUser from Redux store
+  const sessionUser = useSelector((state) => state.session.user);
+  const currentRoom = useSelector((state) => state.room.currentRoom);
   const [isLoaded, setIsLoaded] = useState(false);
 
 
@@ -72,6 +73,8 @@ function App() {
           </>
         )}
       </Routes>
+      {currentRoom === null && <div>You are not in any room.</div>} {/* Optional: Show message if not in a room */}
+
     </>
   );
 }

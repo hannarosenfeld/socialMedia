@@ -98,20 +98,23 @@ export default function Room() {
     };
 
     fetchAudioURL();
-  }, []); // Empty array ensures this only runs once on component mount
+  }, []);
 
   useEffect(() => {
-    // When the component mounts, enter the room
-    dispatch(enterRoomThunk(roomName, sessionUser));
-  
-    // Cleanup function: when the component unmounts, leave the room
-    return () => {
-      if (currentRoom && currentRoom.id) {
-        dispatch(leaveRoomAction(currentRoom.id, sessionUser.uid));
+    const enterRoom = async () => {
+      if (roomName && sessionUser) {
+        await dispatch(enterRoomThunk(roomName, sessionUser));
       }
     };
-  }, []);
   
+    enterRoom();
+  
+    return () => {
+      if (currentRoom && currentRoom.id) {
+        handleLeaveRoom();
+      }
+    };
+  }, [roomName, sessionUser, dispatch]);
 
   useEffect(() => {
     let unsubscribeMessages = null;

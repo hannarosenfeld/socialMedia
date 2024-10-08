@@ -67,7 +67,6 @@ export const getAllRoomsThunk = () => async (dispatch) => {
     }
 };
 
-// Initial State
 const initialState = {
     allRooms: {},
     currentRoom: null,
@@ -77,11 +76,8 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            console.log("🌊 in enter room", action);
             const user = action.user;
             const room = action.room;
-
-            console.log("🐹 room: ", room)
         
             if (room) {
                 const roomUsersArray = Object.values(room.users);
