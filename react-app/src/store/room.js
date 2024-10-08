@@ -10,9 +10,9 @@ const getAllRoomsAction = (rooms) => ({
     rooms,
 });
 
-export const enterRoomAction = (roomName, user) => ({
+export const enterRoomAction = (room, user) => ({
     type: ENTER_ROOM,
-    roomName,
+    room,
     user
 });
 
@@ -21,6 +21,30 @@ export const leaveRoomAction = (roomId, userId) => ({
     roomId,
     userId,
 });
+
+export const enterRoomThunk = (roomName, user) => async (dispatch, getState) => {
+    const state = getState();
+    const roomsArray = Object.values(state.room.allRooms);
+    const roomNameFormatted = roomName.split("-").join(" ");
+    const room = roomsArray.find(room => room.name === roomNameFormatted);
+
+    if (room) {
+        const roomUsersArray = Object.values(room.users);
+        const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
+
+        if (!userAlreadyInRoom) {
+            try {
+                await addUserToRoom(room.id, user);
+                dispatch(enterRoomAction(room, user));
+            } catch (error) {
+                console.error("Error adding user to room:", error);
+            }
+        } else {
+            dispatch(enterRoomAction(room, user));
+        }
+    }
+};
+
 
 export const addRoomThunk = (roomData) => async (dispatch) => {
     try {
@@ -53,32 +77,39 @@ const roomReducer = (state = initialState, action) => {
     let room;
     switch (action.type) {
         case ENTER_ROOM:
-            const user = action.user
-            const roomName = action.roomName.split("-").join(" ")
-            const roomsArray = Object.values(state.allRooms)
-            const room = roomsArray.find(room => room.name === roomName)
-            const userAlreadyInRoom = room.users ? Object.values(room.users).find(e => e === user.uid) : false
-            let updatedUsers = [...room.users]
-            
-            if (!userAlreadyInRoom) {
-                addUserToRoom(room.id, user);
-                updatedUsers.push(user.uid)
-            }
+            console.log("🌊 in enter room", action);
+            const user = action.user;
+            const room = action.room;
+
+            console.log("🐹 room: ", room)
         
-            return {
-                ...state,
-                allRooms: {
-                    ...state.allRooms,
-                    [room.id]: {
+            if (room) {
+                const roomUsersArray = Object.values(room.users);
+                const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
+        
+                let updatedUsers = [...roomUsersArray];
+        
+                if (!userAlreadyInRoom) {
+                    updatedUsers.push(user.uid);
+                }
+        
+                return {
+                    ...state,
+                    allRooms: {
+                        ...state.allRooms,
+                        [room.id]: {
+                            ...room,
+                            users: updatedUsers
+                        }
+                    },
+                    currentRoom: {
                         ...room,
                         users: updatedUsers
                     }
-                },
-                currentRoom: {
-                    ...room,
-                    users: updatedUsers
-                }                
-            };
+                };
+            }
+            return state;
+        
         
          case LEAVE_ROOM:
             const chatroom = state.allRooms[action.roomId];
