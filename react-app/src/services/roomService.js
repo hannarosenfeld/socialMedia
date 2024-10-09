@@ -37,7 +37,6 @@ export const removeUserFromRoom = async (roomId, userId) => {
         console.log('User removed from room successfully');
 
         const updatedRoomDoc = await getDoc(roomDocRef);
-        console.log("Updated users after removal:", updatedRoomDoc.data().users);
     } catch (error) {
         console.error('Error removing user from room: ', error);
     }
