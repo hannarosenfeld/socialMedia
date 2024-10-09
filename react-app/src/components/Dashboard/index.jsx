@@ -52,7 +52,7 @@ const Dashboard = () => {
                     <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                       <div style={{ display: "flex", width: "fit-content", flexDirection: "column", alignSelf: "center" }}>
                       <Typography component="h5">
-                          {chatroom.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {chatroom.name}
                       </Typography>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", alignContent: "center", margin: "0 1em" }}>

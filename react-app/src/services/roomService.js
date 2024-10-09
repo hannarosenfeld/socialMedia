@@ -53,7 +53,7 @@ export const addRoom = async (roomData) => {
     try {
         const roomsCollectionRef = collection(db, 'rooms');
         // Ensure room name is lowercase
-        const normalizedRoomData = { ...roomData, name: roomData.name.toLowerCase() };
+        const normalizedRoomData = { ...roomData, name: roomData.name };
         const docRef = await addDoc(roomsCollectionRef, normalizedRoomData);
         return { id: docRef.id, ...normalizedRoomData }; // Return the new room data
     } catch (error) {
