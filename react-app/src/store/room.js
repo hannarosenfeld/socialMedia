@@ -100,8 +100,6 @@ const roomReducer = (state = initialState, action) => {
             const user = action.user;
             room = action.room;
 
-            console.log("😂 in reducer")
-
             if (room) {
                 const roomUsersArray = Object.values(room.users);
                 const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box } from '@mui/material';
+import { TextField, Button, Container, Paper, List, ListItem, ListItemText, Typography, CircularProgress, Box, IconButton } from '@mui/material';
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { addMessage, listenForMessages, fetchRoomUsers } from '../../services/ro
 import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
 import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery for responsive design
+import CloseIcon from '@mui/icons-material/Close'; // Import Close (x) icon
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -191,6 +192,7 @@ export default function Room() {
     }
   };
 
+  // Handle leaving the room
   const handleLeaveRoom = () => {
     dispatch(leaveRoomThunk(sessionUser.uid));
     history('/');
@@ -211,11 +213,14 @@ export default function Room() {
           {!isMobile && (
             <LeftTabSection>
               <Typography variant="h6" gutterBottom>
-                Chatrooms
+                Chatroom
               </Typography>
               <List>
                 <ListItem>
-                  <ListItemText primary=".... coming soon!! 👩🏻‍🔧" />
+                  <ListItemText primary={currentRoom?.name || "Unknown Room"} />
+                  <IconButton onClick={handleLeaveRoom}>
+                    <CloseIcon />
+                  </IconButton>
                 </ListItem>
               </List>
             </LeftTabSection>
@@ -283,9 +288,6 @@ export default function Room() {
                 ))}
               </List>
             </div>
-            <Button variant="contained" color="secondary" onClick={handleLeaveRoom}>
-              Leave Room
-            </Button>
           </UsersSection>
         </ChatContainer>
       )}
