@@ -82,6 +82,7 @@ export default function Room() {
 
   const isMobile = useMediaQuery('(max-width: 768px)'); // Detect if the screen width is less than 768px (mobile)
 
+  // Fetch audio URL for message sound
   useEffect(() => {
     const fetchAudioURL = async () => {
       const storage = getStorage(); // Initialize Firebase Storage
@@ -100,6 +101,7 @@ export default function Room() {
     fetchAudioURL();
   }, []);
 
+  // Enter room when roomName and sessionUser are available
   useEffect(() => {
     const enterRoom = async () => {
       if (roomName && sessionUser) {
@@ -112,8 +114,9 @@ export default function Room() {
     return () => {
       dispatch(leaveRoomThunk(sessionUser.uid));
     };
-  }, []);
+  }, [roomName, sessionUser, dispatch]);
 
+  // Fetch users and messages, and set up message listener
   useEffect(() => {
     let unsubscribeMessages = null;
 
@@ -125,11 +128,10 @@ export default function Room() {
 
           unsubscribeMessages = listenForMessages(currentRoom.id, (newMessages) => {
             setMessages((prevMessages) => {
-              // Check if the length of messages has increased
               if (prevMessages.length < newMessages.length && audioRef.current) {
-                audioRef.current.play().catch(error => {
+                audioRef.current.play().catch((error) => {
                   console.error("Audio playback failed:", error);
-                }); // Play sound on new message
+                });
               }
               return newMessages; // Update messages state
             });
@@ -146,10 +148,10 @@ export default function Room() {
 
     return () => {
       if (unsubscribeMessages) {
-        unsubscribeMessages();
+        unsubscribeMessages(); // Unsubscribe when component unmounts
       }
     };
-  }, [currentRoom, sessionUser]);
+  }, [currentRoom]);
 
   // Scroll to the bottom when messages change
   useEffect(() => {
@@ -158,6 +160,7 @@ export default function Room() {
     }
   }, [messages]);
 
+  // Send message function
   const handleSendMessage = async () => {
     if (input.trim() && currentRoom && !loading) {
       const message = {
@@ -173,12 +176,14 @@ export default function Room() {
       try {
         await addMessage(currentRoom.id, message);
         setInput('');
-        
+
         // Play sound when sending a message
         if (audioRef.current) {
-          audioRef.current.play().catch(error => {
-            console.error("Audio playback failed:", error);
-          });
+          document.addEventListener('click', () => {
+            audioRef.current.play().catch((error) => {
+              console.error("Audio playback failed:", error);
+            });
+          }, { once: true });
         }
       } catch (error) {
         console.error('Error sending message:', error);

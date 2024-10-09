@@ -20,33 +20,30 @@ import './styles/globals.css';
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
-  const currentRoom = useSelector((state) => state.room.currentRoom);
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const [roomsLoaded, setRoomsLoaded] = useState(false);  // Add state to track room loading
 
   useEffect(() => {
     const fetchRooms = async () => {
-        if (sessionUser) {
-            await dispatch(getAllRoomsThunk());
-        }
+      if (sessionUser) {
+        await dispatch(getAllRoomsThunk());
+        setRoomsLoaded(true); // Rooms are loaded
+      }
     };
     fetchRooms();
-}, [dispatch, sessionUser]);
-
+  }, [dispatch, sessionUser]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Fetch additional user data from Firestore
         const userData = await getUserData(user.uid);
-          if (userData) {
-          dispatch(setUser({ ...user, ...userData })); // Merge Firebase user with additional data
+        if (userData) {
+          dispatch(setUser({ ...user, ...userData }));
         } else {
-          dispatch(setUser(user)); // If no additional data, just set the auth user
+          dispatch(setUser(user));
         }
       } else {
-        console.log("No user is signed in.");
-        dispatch(removeUser());  // Dispatch removal of user from Redux when signed out
+        dispatch(removeUser());
       }
       setIsLoaded(true);
     });
@@ -54,7 +51,8 @@ function App() {
     return () => unsubscribe();
   }, [dispatch]);
 
-  if (!isLoaded) {
+  // Show loading screen until both user and rooms are loaded
+  if (!isLoaded || !roomsLoaded) {
     return <div>Loading...</div>; 
   }
 

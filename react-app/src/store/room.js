@@ -23,27 +23,36 @@ export const leaveRoomAction = (userId, roomId) => ({
 });
 
 export const enterRoomThunk = (roomName, user) => async (dispatch, getState) => {
-    const state = getState();
-    const roomsArray = Object.values(state.room.allRooms);
-    const roomNameFormatted = roomName.split("-").join(" ");
-    const room = roomsArray.find(room => room.name === roomNameFormatted);
+  const state = getState();
+  const roomsArray = Object.values(state.room.allRooms);
 
-    if (room) {
-        const roomUsersArray = Object.values(room.users);
-        const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
+  if (!roomsArray.length) {
+    console.error("Rooms not loaded yet");
+    return;
+  }
 
-        if (!userAlreadyInRoom) {
-            try {
-                await addUserToRoom(room.id, user);
-                dispatch(enterRoomAction(room, user));
-            } catch (error) {
-                console.error("Error adding user to room:", error);
-            }
-        } else {
-            dispatch(enterRoomAction(room, user));
-        }
+  const roomNameFormatted = roomName.split("-").join(" ");
+  const room = roomsArray.find(room => room.name === roomNameFormatted);
+
+  if (!room) {
+    console.error("Room not found!");
+    return;
+  }
+
+  const roomUsersArray = Object.values(room.users);
+  const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
+
+  if (!userAlreadyInRoom) {
+    try {
+      await addUserToRoom(room.id, user);
+    } catch (error) {
+      console.error("Error adding user to room:", error);
     }
+  }
+
+  dispatch(enterRoomAction(room, user));
 };
+
 
 export const leaveRoomThunk = (userId) => async (dispatch, getState) => {
     const state = getState();
@@ -91,6 +100,8 @@ const roomReducer = (state = initialState, action) => {
             const user = action.user;
             room = action.room;
 
+            console.log("😂 in reducer")
+
             if (room) {
                 const roomUsersArray = Object.values(room.users);
                 const userAlreadyInRoom = roomUsersArray.find(e => e === user.uid);
@@ -130,7 +141,7 @@ const roomReducer = (state = initialState, action) => {
 
             delete usersObj[leavingUser];
             const currentUsers = Object.keys(usersObj)
-            
+
                 return {
                     ...state,
                     allRooms: {
