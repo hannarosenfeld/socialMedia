@@ -161,7 +161,7 @@ const roomReducer = (state = initialState, action) => {
             rooms.map((room) => {
                 roomsObj[room.id] = {
                     name: room.name,
-                    users: room.users.map(user => user.uid),
+                    users: room.users ? room.users.map(user => user.uid) : [],
                     messages: room.messages,
                     id: room.id
                 };
