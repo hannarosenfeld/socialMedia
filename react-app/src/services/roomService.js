@@ -127,7 +127,8 @@ export const addMessage = async (roomId, message) => {
         sender: {
             uid: message.sender?.uid || "", // Ensure uid is defined
             username: message.sender?.username || "Anonymous", // Fallback if username is undefined
-            color: message.sender?.color || "defaultColor" // Fallback to a default color if undefined
+            color: message.sender?.color || "defaultColor",
+            profilePic: message.sender?.profilePic || null
         },
         timestamp: message.timestamp || new Date().toISOString() // Ensure timestamp is valid
     };
