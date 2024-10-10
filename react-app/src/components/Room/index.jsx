@@ -13,7 +13,7 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   flex: 1,
-  height: '91vh', // Set to full viewport height
+  height: '91vh',
   width: '100%',
 }));
 

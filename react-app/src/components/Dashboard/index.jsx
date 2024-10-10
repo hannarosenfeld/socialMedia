@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button, Modal, Box, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoomThunk } from '../../store/room'; // Import thunks
+import { addRoomThunk } from '../../store/room';
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
