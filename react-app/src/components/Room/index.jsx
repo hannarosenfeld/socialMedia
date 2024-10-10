@@ -8,6 +8,7 @@ import { enterRoomThunk, leaveRoomThunk } from '../../store/room.js';
 import { getStorage, ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery for responsive design
 import CloseIcon from '@mui/icons-material/Close'; // Import Close (x) icon
+import defaultProfilePic from '../../../public/pp.jpg'; // Fallback profile pic
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -109,9 +110,9 @@ export default function Room() {
         await dispatch(enterRoomThunk(roomName, sessionUser));
       }
     };
-  
+
     enterRoom();
-  
+
     return () => {
       dispatch(leaveRoomThunk(sessionUser.uid));
     };
@@ -170,6 +171,7 @@ export default function Room() {
           uid: sessionUser.uid,
           username: sessionUser.username,
           color: sessionUser.color,
+          profilePic: sessionUser.profilePic,
         },
         timestamp: new Date().toISOString(),
       };
@@ -230,6 +232,11 @@ export default function Room() {
             <MessageList>
               {messages.map((message, index) => (
                 <ListItem key={index}>
+                  <img
+                    src={message.sender.profilePic || defaultProfilePic} // Use sender's profile picture
+                    alt={`${message.sender.username}'s profile`}
+                    className="h-8 w-8 rounded-full mr-2" // Tailwind classes for styling
+                  />
                   <ListItemText
                     primary={
                       <span className="text-sm md:text-base">
@@ -250,7 +257,7 @@ export default function Room() {
               ))}
               <div ref={messagesEndRef} />
             </MessageList>
-  
+
             <MessageInputContainer>
               <MessageInput
                 label={<span className="text-sm md:text-sm">Type your message...</span>}
@@ -271,23 +278,28 @@ export default function Room() {
                 variant="contained"
                 color="primary"
                 onClick={handleSendMessage}
-                className="text-sm md:text-base"
               >
                 Send
               </Button>
             </MessageInputContainer>
           </MessagesSection>
-  
+
           <UsersSection>
-            <div className="flex-col">
-              <List>
-                {activeUsers.map((user, index) => (
-                  <ListItem key={index}>
-                      <ListItemText primary={user.username} style={{ color: user.color }} />
-                  </ListItem>
-                ))}
-              </List>
-            </div>
+            <Typography variant="h6" gutterBottom>
+              Active Users
+            </Typography>
+            <List>
+              {activeUsers.map((user, index) => (
+                <ListItem key={index}>
+                  <img
+                    src={user.profilePic || defaultProfilePic} // Use profile picture or default
+                    alt={`${user.username}'s profile`}
+                    className="h-8 w-8 rounded-full mr-2" // Tailwind classes for styling
+                  />
+                  <ListItemText primary={user.username} style={{ color: user.color }} />
+                </ListItem>
+              ))}
+            </List>
           </UsersSection>
         </ChatContainer>
       )}
