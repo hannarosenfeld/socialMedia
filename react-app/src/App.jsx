@@ -16,18 +16,17 @@ import { getAllRoomsThunk } from './store/room.js';
 import './styles/globals.css';
 
 
-
 function App() {  
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [roomsLoaded, setRoomsLoaded] = useState(false);  // Add state to track room loading
+  const [roomsLoaded, setRoomsLoaded] = useState(false);
 
   useEffect(() => {
     const fetchRooms = async () => {
       if (sessionUser) {
         await dispatch(getAllRoomsThunk());
-        setRoomsLoaded(true); // Rooms are loaded
+        setRoomsLoaded(true);
       }
     };
     fetchRooms();
@@ -51,29 +50,28 @@ function App() {
     return () => unsubscribe();
   }, [dispatch]);
 
-  // Show loading screen until both user and rooms are loaded
-  if (!isLoaded || !roomsLoaded) {
-    return <div>Loading...</div>; 
+  if (!isLoaded || (sessionUser && !roomsLoaded)) {
+    return <div>Loading...</div>;
   }
 
   return (
     <>
-      <NavBar sessionUser={sessionUser} />
-      <Routes>
-        {!sessionUser ? (
-          <>
-            <Route exact path="/" element={<LoginPage />} />
-            <Route exact path="/signup" element={<SignUpPage />} />
-          </>
-        ) : (
-          <>
-            <Route exact path="/" element={<Dashboard sessionUser={sessionUser} />} />    
+      {!sessionUser ? (
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+        </Routes>
+      ) : (
+        <>
+          <NavBar sessionUser={sessionUser} />
+          <Routes>
+            <Route path="/" element={<Dashboard sessionUser={sessionUser} />} />
             <Route path="/rooms/:roomName" element={<Room sessionUser={sessionUser} />} />
-            <Route path="/users/:username" element={<ProfilePage sessionUser={sessionUser}/>} /> 
-            <Route path="/settings/profile" element={<EditProfile sessionUser={sessionUser}/>} />
-          </>
-        )}
-      </Routes>
+            <Route path="/users/:username" element={<ProfilePage sessionUser={sessionUser} />} />
+            <Route path="/settings/profile" element={<EditProfile sessionUser={sessionUser} />} />
+          </Routes>
+        </>
+      )}
     </>
   );
 }
