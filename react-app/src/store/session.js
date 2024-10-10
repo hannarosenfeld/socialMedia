@@ -1,3 +1,4 @@
+ 
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
 
@@ -13,7 +14,8 @@ export const setUser = (user) => ({
         uid: user.uid, // Store only the UID
         email: user.email, // Store other fields you need
         username: user.username, // Example: Store display name if available
-        color: user.color 
+        color: user.color ,
+        profilePic: user.profilePic
         // Add more fields as needed
     },
 });

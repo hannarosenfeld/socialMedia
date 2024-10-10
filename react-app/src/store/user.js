@@ -14,11 +14,13 @@ export const removeUser = () => ({
   type: REMOVE_USER,
 });
 export const editUserThunk = (sessionUser, updatedData) => async (dispatch) => {
+  console.log('💖', updatedData)
       const user = {
         uid: sessionUser.uid,
         email: sessionUser.email,
         username: updatedData.username,
         color: updatedData.color,
+        profilePic: updatedData.profilePic
       };
   try {
     // Update user data in Firestore

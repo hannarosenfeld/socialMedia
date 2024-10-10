@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { deepPurple } from '@mui/material/colors'; 
 
 const ProfilePage = ({ sessionUser }) => {
-  const { username } = sessionUser;
+  const { username, profilePic } = sessionUser;
 
   // Ensure username is defined
   if (!username) {
@@ -20,8 +20,18 @@ const ProfilePage = ({ sessionUser }) => {
       sx={{ bgcolor: 'background.default', padding: 3 }}
     >
       <Box display="flex" alignItems="center">
-        <Avatar sx={{ bgcolor: deepPurple[500], width: 100, height: 100, fontSize: 50 }}>
-          {username[0].toUpperCase()}
+        {/* Avatar with profile picture or default letter */}
+        <Avatar
+          src={profilePic || ''} // If profilePic exists, use it as the image source
+          alt={username}
+          sx={{ 
+            bgcolor: deepPurple[500], 
+            width: 100, 
+            height: 100, 
+            fontSize: 50 
+          }}
+        >
+          {!profilePic && username[0].toUpperCase()} {/* Fallback to first letter if no photo */}
         </Avatar>
 
         <Box ml={3}>
