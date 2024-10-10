@@ -22,7 +22,7 @@ export default function NavBar({ sessionUser }) {  // Accept sessionUser as a pr
     e.preventDefault();
     try {
       await signOut(auth); // Sign out from Firebase
-      navigate('/login');  // Redirect after sign out
+      navigate('/');  // Redirect after sign out
     } catch (error) {
       console.error("Logout Error: ", error);
     }
