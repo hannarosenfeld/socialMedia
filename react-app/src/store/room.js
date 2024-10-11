@@ -23,7 +23,6 @@ export const leaveRoomAction = (userId, roomId) => ({
 });
 
 export const enterRoomThunk = (roomName, user) => async (dispatch, getState) => {
-  console.log("👚 in thunk")
   const state = getState();
   const roomsArray = Object.values(state.room.allRooms);
 

@@ -50,7 +50,7 @@ const UsersSection = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   padding: theme.spacing(1),
   overflowY: 'auto',
-  justifyContent: 'space-between',
+  // justifyContent: 'space-between',
 }));
 
 const LeftTabSection = styled(Box)(({ theme }) => ({
@@ -292,9 +292,9 @@ export default function Room() {
               {activeUsers.map((user, index) => (
                 <ListItem key={index}>
                   <img
-                    src={user.profilePic || defaultProfilePic} // Use profile picture or default
+                    src={user.profilePic || defaultProfilePic}
                     alt={`${user.username}'s profile`}
-                    className="h-8 w-8 rounded-full mr-2" // Tailwind classes for styling
+                    className="h-8 w-8 rounded-full mr-2"
                   />
                   <ListItemText primary={user.username} style={{ color: user.color }} />
                 </ListItem>
