@@ -44,14 +44,36 @@ const MessageInput = styled(TextField)(({ theme }) => ({
 }));
 
 const UsersSection = styled(Box)(({ theme }) => ({
-  flex: 0.15, // Takes 15% of the width
+  flex: 1,
   borderLeft: '1px solid #ccc',
   display: 'flex',
   flexDirection: 'column',
-  padding: theme.spacing(1),
-  overflowY: 'auto',
-  // justifyContent: 'space-between',
+  padding: '16px', // Using theme.spacing alternative
+  [theme.breakpoints.down('sm')]: {
+    flex: 0.3, // On mobile, make it take up 30% of the screen width
+    padding: '8px',
+  },
 }));
+
+const ActiveUserItem = styled(ListItem)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: '8px',
+  width: '100%', // Ensures user content takes full width
+}));
+
+const UserProfilePic = styled('img')({
+  height: '32px',
+  width: '32px',
+  borderRadius: '50%',
+  marginRight: '8px',
+});
+
+const ActiveUsersList = styled(List)({
+  overflowY: 'auto',
+  flex: 1,
+  width: '100%', // Ensures the list occupies full width inside the active user section
+});
 
 const LeftTabSection = styled(Box)(({ theme }) => ({
   flex: 0.15, // Same size as UsersSection
@@ -317,18 +339,20 @@ export default function Room() {
             <Typography variant="h6" gutterBottom>
               Active Users
             </Typography>
-            <List>
+            <ActiveUsersList>
               {activeUsers.map((user, index) => (
-                <ListItem key={index}>
-                  <img
+                <ActiveUserItem key={index}>
+                  <UserProfilePic
                     src={user.profilePic || defaultProfilePic}
                     alt={`${user.username}'s profile`}
-                    className="h-8 w-8 rounded-full mr-2"
                   />
-                  <ListItemText primary={user.username} style={{ color: user.color }} />
-                </ListItem>
+                  <ListItemText
+                    primary={user.username}
+                    style={{ color: user.color }} // Retain inline style for color
+                  />
+                </ActiveUserItem>
               ))}
-            </List>
+            </ActiveUsersList>
           </UsersSection>
         </ChatContainer>
       )}
