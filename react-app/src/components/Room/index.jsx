@@ -84,6 +84,35 @@ export default function Room() {
 
   const isMobile = useMediaQuery('(max-width: 768px)'); // Detect if the screen width is less than 768px (mobile)
 
+  useEffect(() => {
+  if (currentRoom && currentRoom.id) {    
+    console.log("💖", currentRoom.id)
+    const checkInactivity = async () => {
+      const now = new Date();
+      const oneHourAgo = now.setHours(now.getHours() - 1);
+
+      // Fetch the latest list of users
+      const roomDocRef = doc(db, 'rooms', currentRoom.id);
+      const roomDoc = await getDoc(roomDocRef);
+      const users = roomDoc.data().users;
+
+      // Check each user’s lastActivity
+      users.forEach(async (user) => {
+        if (user.lastActivity && user.lastActivity.toDate() < oneHourAgo) {
+          await removeUserFromRoom(currentRoom.id, user.uid);
+        }
+      });
+    };
+
+    // Set an interval to check for inactive users every 5 minutes
+    const intervalId = setInterval(checkInactivity, 5 * 60 * 1000); // Every 5 minutes
+
+    // Clear interval when component unmounts
+    return () => clearInterval(intervalId);
+  }
+}, []);
+
+
   // Fetch audio URL for message sound
   useEffect(() => {
     const fetchAudioURL = async () => {

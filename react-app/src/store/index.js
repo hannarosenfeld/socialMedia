@@ -10,5 +10,14 @@ export default configureStore({
     user: userReducer,
     room: roomReducer
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
-})
+  middleware: (getDefaultMiddleware) => {
+    const middlewares = getDefaultMiddleware();
+    
+    // Add logger only in development
+    if (process.env.NODE_ENV === 'development') {
+      middlewares.push(logger);
+    }
+    
+    return middlewares;
+  },
+});

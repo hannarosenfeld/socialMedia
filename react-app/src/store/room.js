@@ -5,9 +5,12 @@ const GET_ALL_ROOMS = "room/GET_ALL_ROOMS";
 const ENTER_ROOM = "room/ENTER_ROOM";
 const LEAVE_ROOM = "room/LEAVE_ROOM";
 
-const getAllRoomsAction = (rooms) => ({
+export const getAllRoomsAction = (rooms) => ({
     type: GET_ALL_ROOMS,
-    rooms,
+    rooms: rooms.map(room => ({
+        ...room,
+        lastUpdated: room.lastUpdated?.seconds, // Convert _Timestamp to seconds (Unix timestamp)
+    })),
 });
 
 export const enterRoomAction = (room, user) => ({
@@ -130,15 +133,15 @@ const roomReducer = (state = initialState, action) => {
         case LEAVE_ROOM:
             const leavingUser = action.userId;
             const updatedChatroom = state.allRooms[action.roomId];
-            const usersObj = {}
+            const usersObj = {};
             
             if (updatedChatroom) {
                 updatedChatroom.users.map(user => {
                     usersObj[user] = user   
-                })
+                });
 
-            delete usersObj[leavingUser];
-            const currentUsers = Object.keys(usersObj)
+                delete usersObj[leavingUser];
+                const currentUsers = Object.keys(usersObj);
 
                 return {
                     ...state,
@@ -156,14 +159,15 @@ const roomReducer = (state = initialState, action) => {
 
         case GET_ALL_ROOMS:
             const rooms = action.rooms;
-            const roomsObj = {}
-            
-            rooms.map((room) => {
+            const roomsObj = {};
+
+            rooms.forEach((room) => {
                 roomsObj[room.id] = {
                     name: room.name,
                     users: room.users ? room.users.map(user => user.uid) : [],
                     messages: room.messages,
-                    id: room.id
+                    id: room.id,
+                    lastUpdated: room.lastUpdated, // This will now be a serializable timestamp (seconds)
                 };
             });
 
@@ -188,5 +192,6 @@ const roomReducer = (state = initialState, action) => {
             return state;
     }
 };
+
 
 export default roomReducer;
