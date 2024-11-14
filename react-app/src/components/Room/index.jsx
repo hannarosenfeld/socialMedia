@@ -44,7 +44,7 @@ const MessageInput = styled(TextField)(({ theme }) => ({
 }));
 
 const UsersSection = styled(Box)(({ theme }) => ({
-  flex: 1,
+  flex: 0.2,
   borderLeft: '1px solid #ccc',
   display: 'flex',
   flexDirection: 'column',
